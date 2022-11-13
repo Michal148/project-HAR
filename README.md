@@ -1,2 +1,7 @@
-# projekt-HAR
-Human activity recognition - Celem naszego projektu jest stworzenie algorytmu zdolnego do rozpoznania działań i aktywności obiektu na podstawie danych pobranych z czujników.
+# WebApp
+## 13.11.2022
+
+connection to db tested successfully on localhost and testing table
+
+## TODO
+- [ ] alter db tables to extract all data from jsons
