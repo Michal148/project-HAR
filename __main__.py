@@ -8,7 +8,7 @@ from collections import deque
 from flask import Flask, request
 import pyodbc
 
-#fill in tcp address, database and credentials
+#fill in tcp address, database and credentials; can be retrieved at azure website
 cnxn = pyodbc.connect("Driver={ODBC Driver 17 for SQL Server};Server=tcp:,1433;Database=;Uid=;Pwd=;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;")
 cursor = cnxn.cursor()
 
@@ -68,9 +68,7 @@ def update_graph(_counter):
 @server.route("/data", methods=["POST"])
 def data():  # listens to the data streamed from the sensor logger
 	if str(request.method) == "POST":
-		print(f'received data: {request.data}')
 		data = json.loads(request.data)
-		print(data)
 		for d in data['payload']:
 			if (
 				d.get("name", None) == "accelerometer"
@@ -82,17 +80,34 @@ def data():  # listens to the data streamed from the sensor logger
 					accel_x.append(d["values"]["x"])
 					accel_y.append(d["values"]["y"])
 					accel_z.append(d["values"]["z"])
-					#time = d["time"]
-					x = float(d["values"]["x"])
-					y = float(d["values"]["y"])
-					z = float(d["values"]["z"])
-					#print(type(x), type(time))
-					data = tuple([x, y, z])
-					#print(x, type(x))
-					query = f"INSERT INTO [dbo].[test] (x, y, z) VALUES ({x}, {y}, {z})"
-					print(query)
-					cursor.execute(query)
-					cnxn.commit()
+					x_ac = float(d["values"]["x"])
+					y_ac = float(d["values"]["y"])
+					z_ac = float(d["values"]["z"])
+
+			if (
+				d.get("name", None) == "gyroscope"
+			):  # data just for streaming to db
+				ts = datetime.fromtimestamp(d["time"] / 1000000000)
+				if len(time) == 0 or ts > time[-1]:
+					x_gyr = float(d["values"]["x"])
+					y_gyr = float(d["values"]["y"])
+					z_gyr = float(d["values"]["z"])
+
+			if (
+				d.get("name", None) == "magnetometer"
+			):  # data just for streaming to db
+				ts = datetime.fromtimestamp(d["time"] / 1000000000)
+				if len(time) == 0 or ts > time[-1]:
+					x_mag = float(d["values"]["x"])
+					y_mag = float(d["values"]["y"])
+					z_mag = float(d["values"]["z"])
+
+		#edit table name/columns for streaming workload
+		query = f"INSERT INTO [dbo].[test] (x_ac, y_ac, z_ac, x_gyr, y_gyr, z_gyr, x_mag, y_mag, z_mag) VALUES ({x_ac}, {y_ac}, {z_ac}, " \
+				f"{x_gyr}, {y_gyr}, {z_gyr}, {x_mag}, {y_mag}, {z_mag})"
+		#print(query)
+		cursor.execute(query)
+		cnxn.commit()
 	return "success"
 
 
