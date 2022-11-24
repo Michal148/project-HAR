@@ -103,5 +103,15 @@ for id_ in range(100):
 
     # compute delta quaternion, based on Equation (47) from [1]
     delta_q_acc = np.array(
-        [np.sqrt((gp[2]+1)/2), -gp[2]/np.sqrt(2*(gp[2]+1)), gp[0]/np.sqrt(2*(gp[2]+1)), 0]).transpose()
+        [np.sqrt((gp[2]+1)/2), -gp[1]/np.sqrt(2*(gp[2]+1)), gp[0]/np.sqrt(2*(gp[2]+1)), 0]).transpose()
     print(gp)
+
+    # create magnetic vector used for predicted magnetic field vector, based on Equation (54) from [1]
+    m = np.array([mag['x'][id_ + 1], mag['y'][id_ + 1], mag['z'][id_ + 1]])
+    l_ = np.dot(rotation(q_t), m)
+
+    # compute delta quaternion, based on Equation (58) from [1]
+    delta_q_mag = np.array(
+        [np.sqrt(gamma+l_[0]*np.sqrt(gamma))/np.sqrt(2*gamma), 0,
+         l_[1]/np.sqrt(2*(gamma+l_[0]*np.sqrt(gamma)))]).transpose()
+    print(l_)
