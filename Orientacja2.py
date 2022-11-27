@@ -79,6 +79,16 @@ gyr = pd.read_csv('Gyroscope.csv').drop('time', axis=1).drop('seconds_elapsed', 
 # sampling time
 dt = 0.01
 
+# epsilon value mentioned between Equations (49) and (50) in [1]
+threshold = 0.9
+
+# identity quaternion, based on Equation (49) in from [1]
+quat_id = np.array([1, 0, 0, 0]).transpose()
+
+# alpha and beta parameters mentioned between Equations (50) and (51)  as well as before Equation (59) in [1]
+alpha = 0.1
+beta = 0.1
+
 # filter loop, testing for first 100 records
 for id_ in range(100):
     # for prediction step of filter, we take quaternion created by the first readings from
@@ -105,16 +115,44 @@ for id_ in range(100):
     delta_q_acc = np.array(
         [np.sqrt((gp[2]+1)/2), -gp[1]/np.sqrt(2*(gp[2]+1)), gp[0]/np.sqrt(2*(gp[2]+1)), 0]).transpose()
 
-    # can't compute l_, until LERP/SLERP implemented
+    # cosine of omega, as in Equation (48) in [1]
+    cos_omega = np.dot(quat_id, delta_q_acc)
+
+    # if .. else based on Equations (50) and (51) from [1]
+    if cos_omega > threshold:
+        delta_q_line = (1 - alpha) * quat_id + alpha * delta_q_acc
+        norm_nums = np.sqrt(delta_q_line[0]**2 + delta_q_line[1]**2 + delta_q_line[2]**2 + delta_q_line[3]**2)
+        norm_delta_q = np.array([delta_q_line[0]/norm_nums, delta_q_line[1]/norm_nums, delta_q_line[2]/norm_nums, delta_q_line[3]/norm_nums])
+    else:
+        omega = np.arccos(cos_omega)
+        norm_delta_q = np.sin((1 - alpha) * omega)/np.sin(omega) * quat_id + np.sin(alpha * omega)/np.sin(omega) * delta_q_acc
+
+    # quaternion estimated from gyroscope data is multiplied by the filtered delta quaternion, based on Equation (53) from [1]
+    q_apostrophe = quatmult(q_t, norm_delta_q)
+
     # create magnetic vector used for predicted magnetic field vector, based on Equation (54) from [1]
-    # m = np.array([mag['x'][id_ + 1], mag['y'][id_ + 1], mag['z'][id_ + 1]])
-    # l_ = np.dot(rotation(q_t_p), m)
-    #
+    m = np.array([mag['x'][id_ + 1], mag['y'][id_ + 1], mag['z'][id_ + 1]])
+    l_ = np.dot(rotation(q_apostrophe), m)
+
     # compute gamma, based on Equation (28) from [1]
-    # gamma = l_[0]**2 + l_[1]**2
-    #
+    gamma = l_[0]**2 + l_[1]**2
+
     # compute delta quaternion, based on Equation (58) from [1]
-    # delta_q_mag = np.array(
-    #    [np.sqrt(gamma+l_[0]*np.sqrt(gamma))/np.sqrt(2*gamma), 0, 0,
-    #     l_[1]/np.sqrt(2*(gamma+l_[0]*np.sqrt(gamma)))]).transpose()
-    # print(l_)
+    delta_q_mag = np.array(
+        [np.sqrt(gamma+l_[0]*np.sqrt(gamma))/np.sqrt(2*gamma), 0, 0,
+         l_[1]/np.sqrt(2*(gamma+l_[0]*np.sqrt(gamma)))]).transpose()
+
+    # init another branch of filter - magnetometer based as mentioned below Equation (58) from [1]
+    cos_omega_mag = np.dot(quat_id, delta_q_mag)
+
+    # magnetometer if .. else based on Equations (50) and (51) from [1]
+    if cos_omega_mag > threshold:
+        delta_q_line = (1 - beta) * quat_id + beta * delta_q_mag
+        norm_nums = np.sqrt(delta_q_line[0]**2 + delta_q_line[1]**2 + delta_q_line[2]**2 + delta_q_line[3]**2)
+        norm_delta_q = np.array([delta_q_line[0]/norm_nums, delta_q_line[1]/norm_nums, delta_q_line[2]/norm_nums, delta_q_line[3]/norm_nums])
+    else:
+        omega = np.arccos(cos_omega_mag)
+        norm_delta_q = np.sin((1 - beta) * omega)/np.sin(omega) * quat_id + np.sin(beta * omega)/np.sin(omega) * delta_q_mag
+
+    # final quaternion after accelerometer and magnetometer correction, based on Equation (59) from [1]
+    q_t = quatmult(q_apostrophe, norm_delta_q)
