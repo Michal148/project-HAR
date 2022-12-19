@@ -55,7 +55,7 @@ def quatmult(p, q):
     return quaternion
 
 
-# rotatting quaternion, based on equation (9) from [1]
+# rotating quaternion, based on equation (9) from [1]
 def rotation(qa):
     dmcmatrix = np.array([[qa[0] ** 2 + qa[1] ** 2 - qa[2] ** 2 - qa[3] ** 2,
                            2 * (qa[1] * qa[2] - qa[0] * qa[3]),
@@ -69,6 +69,13 @@ def rotation(qa):
 
     return dmcmatrix
 
+# compute inverse quaternion
+def inverse(q):
+    for i in range(1,4):
+        q[i] = -q[i]
+
+    return q
+
 
 # loading data from sensors
 acc = normalize(pd.read_csv('Accelerometer.csv').drop('time', axis=1).drop('seconds_elapsed', axis=1))
@@ -80,14 +87,14 @@ gyr = pd.read_csv('Gyroscope.csv').drop('time', axis=1).drop('seconds_elapsed', 
 dt = 0.01
 
 # epsilon value mentioned between Equations (49) and (50) in [1]
-threshold = 0.9
+threshold = 0.01
 
 # identity quaternion, based on Equation (49) in from [1]
 quat_id = np.array([1, 0, 0, 0]).transpose()
 
 # alpha and beta parameters mentioned between Equations (50) and (51)  as well as before Equation (59) in [1]
-alpha = 0.1
-beta = 0.1
+alpha = 0.01
+beta = 0.01
 
 # filter loop, testing for first 100 records
 for id_ in range(100):
@@ -109,7 +116,7 @@ for id_ in range(100):
 
     # create local acceleration vector used for predicted gravity vector, based on Equation (44) from [1]
     a = np.array([acc['x'][id_ + 1], acc['y'][id_ + 1], acc['z'][id_ + 1]])
-    gp = np.dot(rotation(q_t), a)
+    gp = np.dot(rotation(inverse(q_t)), a)
 
     # compute delta quaternion, based on Equation (47) from [1]
     delta_q_acc = np.array(
@@ -132,7 +139,7 @@ for id_ in range(100):
 
     # create magnetic vector used for predicted magnetic field vector, based on Equation (54) from [1]
     m = np.array([mag['x'][id_ + 1], mag['y'][id_ + 1], mag['z'][id_ + 1]])
-    l_ = np.dot(rotation(q_apostrophe), m)
+    l_ = np.dot(rotation(inverse(q_apostrophe)), m)
 
     # compute gamma, based on Equation (28) from [1]
     gamma = l_[0]**2 + l_[1]**2
@@ -156,3 +163,4 @@ for id_ in range(100):
 
     # final quaternion after accelerometer and magnetometer correction, based on Equation (59) from [1]
     q_t = quatmult(q_apostrophe, norm_delta_q)
+    print(q_t)
