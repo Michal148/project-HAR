@@ -1,0 +1,2 @@
+version,device name,recording time,platform,appVersion,device id,sensors,sampleRateMs
+3,iPhone 11,2022-12-20_21-07-49,ios,1.11,63797b96-57bd-41ce-8a01-cb2ebe2d3d48,Accelerometer|Gravity|Gyroscope|Orientation|Magnetometer|Annotation|MagnetometerUncalibrated|GyroscopeUncalibrated|AccelerometerUncalibrated,10|10|10|10|10||10|10|10
