@@ -70,10 +70,56 @@ def jerk(data):
 # calculate fft from signal, possible window usage
 def fftSig(data):
     N = len(data)
+    #window = signal.get_window('hanning', N)
+    #data = data * window
     fs = 100
     freq_vec = [fs/N * x for x in range(N)]
-    #window = signal.get_window('hanning', N)
-    #return freq_vec, np.abs((np.fft.fft(data.to_numpy()*window)))
 
     return freq_vec, np.abs((np.fft.fft(data.to_numpy())))
 
+# sigA and sigB are signals from axes, wFilt is a maximum filter length, 
+# wShift is a shift between each iteration of filtering
+def haar(sigA, sigB, wFilt, wShift):
+    # length of the signal
+    length = len(sigA)
+    
+    # check the length of window and based on that, set the interval for
+    # the creation of window list
+    if wFilt > 200:
+        interval = 20
+    else:
+        interval = 10
+
+    # create window list and an empty features list
+    widthList = [x for x in range(10, wFilt, interval)]
+    featList = []
+
+    # main loop, iterate through window list
+    for width in widthList:
+        # equation (8) from paper
+        N = int((length - wFilt)/wShift + 1)
+        
+        # variable used for storing absolute difference between axes
+        axesSum = 0
+
+        # first sigma from paper, equation (9)
+        for n in range(N):
+            pointTempA = 0
+            pointTempB = 0
+
+            # sigmas inside the absolute value in equation (9)
+            for k in range(width):
+                if k < width/2:
+                    pointTempA -= sigA[n*wShift + k]
+                    pointTempB += sigB[n*wShift + k]
+                else:
+                    pointTempA += sigA[n*wShift + k]
+                    pointTempB -= sigB[n*wShift + k]
+
+            # add asbsolut difference from current iteration
+            axesSum += np.abs(pointTempA - pointTempB)
+
+        # append the final feature value to the list 
+        featList.append(axesSum)     
+
+    return featList   
