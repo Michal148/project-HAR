@@ -5,7 +5,7 @@ import scipy.stats as ss
 from scipy.fft import fft, fftfreq
 from scipy import signal
 import statistics as stat
-import matplotlib.pyplot as plot
+# import matplotlib.pyplot as plot
 import time as tim
 
 
@@ -20,36 +20,37 @@ time = da['time']
 
 
 # changing time signal to frequency
-def fftSig(data):
-    N = len(data)
+def fft_sig(data):
+    length = len(data)
+
     fs = 100
-    freq_vec = [fs/N * x for x in range(N)]
-    window = signal.get_window('flattop', N)
+    freq_vec = [fs/length * var for var in range(length)]
+    window = signal.get_window('flattop', length)
 
     return freq_vec, np.abs((np.fft.fft(data.to_numpy()*window)))
 
-f, fv = fftSig(y)
+
+f, fv = fft_sig(y)
 
 
 # time
 def zero_crossing(data):
-
-    zero_crossinga = np.where(np.diff(np.sign(data)))[0]
-
-    return zero_crossinga
-#print(zero_crossing(x))
+    zc = []
+    for n in ['x', 'y', 'z']:
+        zero_crossinga = np.where(np.diff(np.sign(data[n])))[0]
+        zc.append(zero_crossinga)
+    return zc
+print(zero_crossing(da))
 
 
 # time and frequency
 def kurtosis1(data):
-
     kurto = []
     for n in ['x', 'y', 'z']:
         length = len(data[n])
         mean = sum(data[n]) / length
         std = (sum((var - mean) ** 2 for var in data[n]) / length) ** 0.5
         kurt = (sum((var - mean) ** 4 for var in data[n]) / (length * std ** 4))
-
         kurto.append(kurt)
 
     return kurto
@@ -58,10 +59,9 @@ def kurtosis1(data):
 
 # frequency
 def entropy(data, base=None):
-
     entr = []
     for n in ['x', 'y', 'z']:
-        ff, ffv = fftSig(data[n])
+        ff, ffv = fft_sig(data[n])
         n_labels = len(ffv)
 
         if n_labels <= 1:
@@ -84,27 +84,27 @@ def entropy(data, base=None):
 #print(entropy(da))
 
 
-#median_frequency
+# median_frequency
 def energy(data):
 
-    energyDf = pd.DataFrame(data)
-    N = len(energyDf)
-    if N % 2 != 0:
-        N -= 1
-    energyArr = []
-    totalEnergy = 0
-    for i in range(int(N / 2)):
-        tempEnergy = np.abs(energyDf[0][i]) ** 2
-        energyArr.append(tempEnergy)
-        totalEnergy += tempEnergy
-    totalEnergy = totalEnergy / (N / 2)
+    energy_df = pd.DataFrame(data)
+    length = len(energy_df)
+    if length % 2 != 0:
+        length -= 1
+    energy_arr = []
+    total_energy = 0
 
-    return totalEnergy, energyArr
+    for i in range(int(length / 2)):
+        temp_energy = np.abs(energy_df[0][i]) ** 2
+        energy_arr.append(temp_energy)
+        total_energy += temp_energy
+    total_energy = total_energy / (length / 2)
+
+    return total_energy, energy_arr
 
 
 # time
 def median_absolute_deviation(data):
-
     mad1 = []
     for n in ['x', 'y', 'z']:
         median_number = np.median(data[n])
@@ -117,7 +117,6 @@ def median_absolute_deviation(data):
 
 # signal
 def magnitude(data):
-
     length = len(data)
     mag = []
     for i in range(length):
@@ -126,9 +125,6 @@ def magnitude(data):
 
     return mag
 #print(magnitude(da))
-
-
-
 
 
 #do zobacnie jaki błąd w formule
@@ -146,12 +142,10 @@ def magnitude(data):
 
 # time
 def corelation_coefficient(data):
-    mad1 = []
-    for n in range(1:4):
-        arr = ['x','y','z']
-        ccxy = np.corrcoef(data[arr(n)], data[arr(n+1)])
-        ccxz = np.corrcoef(data['x'], data['z'])
-        ccyz = np.corrcoef(data['y'], data['z'])
+    ccxy = np.corrcoef(data['x'], data['y'])
+    ccxz = np.corrcoef(data['x'], data['z'])
+    ccyz = np.corrcoef(data['y'], data['z'])
+
     return ccxy[1, 0], ccxz[1, 0], ccyz[1, 0]
 
 
@@ -160,6 +154,7 @@ def cross_corelation(data):
     corrxy = np.correlate(data['x'], data['y'])
     corrxz = np.correlate(data['x'], data['z'])
     corryz = np.correlate(data['y'], data['z'])
+
     return corrxy[0], corrxz[0], corryz[0]
 
 
