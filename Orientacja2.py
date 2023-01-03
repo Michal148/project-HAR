@@ -50,11 +50,11 @@ def quatmag(mx, my, mz, qa):
 
 # multiplication of two quaternions, based on Equation (4) from [1]
 def quatmult(p, q):
-    quaternion = np.array([p[0] * q[0] - p[1] * q[1] - p[2] * q[2] - p[3] * q[3],
-                           p[0] * q[1] + p[1] * q[0] + p[2] * q[3] - p[3] * q[2],
-                           p[0] * q[2] - p[1] * q[3] + p[2] * q[0] + p[3] * q[1],
-                           p[0] * q[3] + p[1] * q[2] - p[2] * q[1] + p[3] * q[0]])
-
+    quaternion = np.array([p[0]*q[0] - p[1]*q[1] - p[2]*q[2] - p[3]*q[3],
+                           p[0]*q[1] + p[1]*q[0] + p[2]*q[3] - p[3]*q[2],
+                           p[0]*q[2] - p[1]*q[3] + p[2]*q[0] + p[3]*q[1],
+                           p[0]*q[3] + p[1]*q[2] - p[2]*q[1] + p[3]*q[0]])
+    
     return quaternion
 
 
