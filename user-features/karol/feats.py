@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import math
 from scipy import fftpack
-df = pd.read_csv("Accelerometer.csv")
-df = df.drop(['time', 'seconds_elapsed'], axis=1)
+# df = pd.read_csv("Accelerometer.csv")
+# f = df.drop(['time', 'seconds_elapsed'], axis=1)
 
 
 # Calculating mean value
@@ -106,4 +106,4 @@ def three_quarters(dataf):
         lst.append(value)
     return lst
 
-print(three_quarters(df))
+# print(three_quarters(df))
