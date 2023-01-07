@@ -19,9 +19,9 @@ def lag(N, sig):
         if mag < N:
             if iter > 0:
                 for i in range(iter):
-                    tempListX.append(sig['x'][iter - 1])
-                    tempListY.append(sig['y'][iter - 1])
-                    tempListZ.append(sig['z'][iter - 1])
+                    tempListX.append(sig['x'][iter - i - 1])
+                    tempListY.append(sig['y'][iter - i - 1])
+                    tempListZ.append(sig['z'][iter - i - 1])
 
             for i in range(N - mag):
                 tempListX.append(None)
