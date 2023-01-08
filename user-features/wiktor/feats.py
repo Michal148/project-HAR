@@ -1,5 +1,7 @@
 import pandas as pd
 import warnings
+import pywt
+import numpy as np
 warnings.filterwarnings('ignore')
 
 def lag(N, sig):
@@ -40,5 +42,32 @@ def lag(N, sig):
         iter += 1
  
     return laggedDfX, laggedDfY, laggedDfZ
+
+def energy(sig):
+    sigX = sig['x']
+    sigY = sig['y']
+    sigZ = sig['z']
+
+    db = pywt.Wavelet('sym4')
+    decomp= pywt.dwt_max_level(len(sig), db) + 1
+
+    xVec = [None] * decomp
+    yVec = [None] * decomp
+    zVec = [None] * decomp
+
+    xVec = pywt.wavedec(sigX, db)
+    yVec = pywt.wavedec(sigY, db)
+    zVec = pywt.wavedec(sigZ, db)
+
+    energyX = []
+    energyY = []
+    energyZ = []
+
+    for row in range(decomp):
+        energyX.append(np.sqrt(np.sum(np.array(xVec[row][-decomp]) ** 2)) / len(xVec[-decomp]))
+        energyY.append(np.sqrt(np.sum(np.array(yVec[row][-decomp]) ** 2)) / len(yVec[-decomp]))
+        energyZ.append(np.sqrt(np.sum(np.array(zVec[row][-decomp]) ** 2)) / len(zVec[-decomp]))
+
+    return energyX, energyY, energyZ
 
 
