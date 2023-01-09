@@ -43,7 +43,7 @@ def lag(N, sig):
  
     return laggedDfX, laggedDfY, laggedDfZ
 
-def energy(sig):
+def energyWaveletCoeff(sig):
     sigX = sig['x']
     sigY = sig['y']
     sigZ = sig['z']
@@ -70,4 +70,55 @@ def energy(sig):
 
     return energyX, energyY, energyZ
 
+def wilsonAmp(data, T):
+    cols = ['x', 'y', 'z']
+    WA = []
+    for col in cols:
+        N = len(data[col])
+        amp = 0
+        
+        for i in range(N - 1):
+            amp += np.sign(abs(data[col][i + 1] - data[col][i]) - T)
+        
+        WA.append(amp)
 
+    return WA
+
+def sma(data):
+    N=len(data)
+    x=data['x']
+    y=data['y']
+    z=data['z']
+    sma=0
+    for i in range(N):
+        sma += np.abs(x[i]) + np.abs(y[i]) + np.abs(z[i])
+
+    return sma
+
+def fftMag(sig):
+    sig['mag'] = np.sqrt(sig['x']**2 + sig['y']**2 + sig['z']**2)
+    N = len(sig['mag'])
+    fs = 100
+    
+    #window = signal.get_window('hanning', N)
+    #sig['mag'] = sig['mag'] * window
+
+    freqVec = [fs/N * x for x in range(N)]
+    sigMag = np.abs((np.fft.fft(sig['mag'].to_numpy())))
+    
+    return freqVec, sigMag
+
+def slopeChange(sig):
+    change = 0
+    cols = ['x', 'y', 'z']
+    signList = []
+    for col in cols:
+        change = 0
+        
+        for i in range(1, len(sig)):
+            if np.sign(sig[col][i]) != np.sign(sig[col][i - 1]):
+                change += 1
+        
+        signList.append(change)
+
+    return signList
