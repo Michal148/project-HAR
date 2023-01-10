@@ -3,6 +3,8 @@ import warnings
 import pywt
 import numpy as np
 warnings.filterwarnings('ignore')
+import statsmodels.api as sm
+
 
 def lag(N, sig):
     colNames = ['lag ' + str(el) for el in range(N + 1)]
@@ -122,3 +124,33 @@ def slopeChange(sig):
         signList.append(change)
 
     return signList
+
+def fft_top3(data):
+    N = len(data)
+
+    fs = 100
+    freq_vec = [fs/N * x for x in range(N)]
+    freq_vec.sort()
+    top3v = freq_vec[-1:-4:-1]
+
+    return top3v
+
+
+def autoregyw(data):
+    for col in data.columns:
+        a, sigma = sm.regression.yule_walker(data[col], order=4)
+        predicted = list(data[col].values[0:4])
+        for i in range(4, data[col].shape[0]-1):
+            predicted.append(np.sum(np.multiply(a, predicted[i-4:i])))
+
+    return predicted
+
+
+def autoregburg(data):
+    for col in data.columns:
+        a, sigma = sm.regression.linear_model.burg(data[col], order=4)
+        predicted_1 = list(data[col].values[0:4])
+        for i in range(4, data[col].shape[0]-1):
+            predicted_1.append(np.sum(np.multiply(a, predicted_1[i - 4:i])))
+
+    return predicted_1
