@@ -7,5 +7,6 @@ We are using Smartphone sensors such as Accelometer, Magnetometer and Gyroscope.
 - Sit ups
 - Sitting
 - Standing
+
 We are collecting dataset form persons performing diffrent activities with smartphone locked in pocket.
 
