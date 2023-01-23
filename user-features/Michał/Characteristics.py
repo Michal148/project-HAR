@@ -9,14 +9,14 @@ import statistics as stat
 import time as tim
 
 
-t0 = tim.time()
+# t0 = tim.time()
 
-a2 = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-da = pd.read_csv('Accelerometer.csv')
-x = da['x']
-y = da['y']
-z = da['z']
-time = da['time']
+# a2 = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+# da = pd.read_csv('Accelerometer.csv')
+# x = da['x']
+# y = da['y']
+# z = da['z']
+# time = da['time']
 
 
 # changing time signal to frequency
@@ -30,9 +30,6 @@ def fft_sig(data):
     return freq_vec, np.abs((np.fft.fft(data.to_numpy()*window)))
 
 
-f, fv = fft_sig(y)
-
-
 # time
 def zero_crossing(data):
     zc = []
@@ -40,7 +37,7 @@ def zero_crossing(data):
         zero_crossinga = np.where(np.diff(np.sign(data[n])))[0]
         zc.append(zero_crossinga)
     return zc
-print(zero_crossing(da))
+
 
 
 # time and frequency
@@ -120,7 +117,7 @@ def magnitude(data):
     length = len(data)
     mag = []
     for i in range(length):
-        mag_wynik = np.sqrt(x[i]**2 + y[i]**2 + z[i]**2)
+        mag_wynik = np.sqrt(data['x'][i]**2 + data['y'][i]**2 + data['z'][i]**2)
         mag.append(mag_wynik)
 
     return mag
@@ -160,10 +157,6 @@ def cross_corelation(data):
 
 
 
-# time calculating
-t1 = tim.time()
-total = t1-t0
-print('czas to', total)
 
 
 
