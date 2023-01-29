@@ -4,6 +4,7 @@ import os
 from kasper.feats import *
 from Michał.Characteristics import magnitude
 from wiktor.feats import lag
+from Orientation import *
 
 driver = os.environ['DBDriver']
 server = os.environ['DBServer']
@@ -23,7 +24,7 @@ with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE=
             for dirContents in margFiles:
                 for file in dirContents:
                     try:
-                        tableQuery = f"CREATE TABLE [dbo].[{file}] ( \
+                        tableQuery = f"CREATE TABLE [dbo].[{file.replace('.csv', '')}] ( \
                                         [time]            BIGINT       NULL, \
                                         [seconds_elapsed] VARCHAR (MAX) NULL, \
                                         [x]             VARCHAR (MAX) NULL, \
@@ -100,3 +101,43 @@ with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE=
                         print("file name:"+file)
                         print(e)
                         continue
+
+        for path in margFolders:
+            for dirContents in margFiles:
+                for file in dirContents:
+                    pathString = (path+'/'+file)
+                    
+                    if pathString.find("ccel") > 1:
+                        acc = pathString
+                            
+                    elif pathString.find("Gyr") > 1:
+                        gyr = pathString
+
+                    elif pathString.find("Mag") > 1:
+                        mag = pathString
+    
+            try:
+                orient = orientation(acc, mag, gyr)
+                timeDf = pd.read_csv(acc).drop('x', axis=1).drop('y', axis=1).drop('z', axis=1)
+                tableName = path.split(os.sep)[-1]
+                createOrientationTable = f"CREATE TABLE [dbo].[{tableName}] ( \
+                                                [time]            BIGINT       NULL, \
+                                                [seconds_elapsed] VARCHAR (MAX) NULL, \
+                                                [q0]             VARCHAR (MAX) NULL, \
+                                                [q1]              VARCHAR (MAX) NULL, \
+                                                [q2]              VARCHAR (MAX) NULL, \
+                                                [q3]              VARCHAR (MAX) NULL);"
+                cursor.execute(createOrientationTable)
+                conn.commit()
+                
+                for iter in range(len(orient)):
+                    orientationQuery = f"INSERT INTO [dbo].[{tableName}] (time, seconds_elapsed, q0, q1, \
+                                        q2, q3) VALUES ('{timeDf['time'].iloc[iter]}', '{timeDf['seconds_elapsed'].iloc[iter]}', \
+                                        '{orient['q0'].iloc[iter]}', '{orient['q1'].iloc[iter]}', '{orient['q2'].iloc[iter]}', '{orient['q3'].iloc[iter]}');"
+                    cursor.execute(orientationQuery)
+
+                conn.commit()
+
+            except Exception as e:
+                print(e)
+                continue
