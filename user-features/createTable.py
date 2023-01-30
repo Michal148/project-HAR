@@ -6,20 +6,25 @@ from Michał.Characteristics import magnitude
 from wiktor.feats import lag
 from Orientation import *
 
+# read connection variables from env
 driver = os.environ['DBDriver']
 server = os.environ['DBServer']
 database = os.environ['DBDb']
 username = os.environ['DBUser']
 password = os.environ['DBPass']
 
+# loop through directories and files in streaming-work-dir 
+# to gorup .csv files
 margFolders = [f.path for f in os.scandir("./user-features/streaming-work-dir") if f.is_dir()]
 margFiles = []
 
 for folder in margFolders:
     margFiles.append(os.listdir(folder))
 
+# main SQL loop
 with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE='+database+';UID='+username+';PWD='+ password) as conn:
     with conn.cursor() as cursor:
+        # loop through directories, organise files and create tables
         for path in margFolders:
             for dirContents in margFiles:
                 for file in dirContents:
@@ -45,6 +50,7 @@ with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE=
                         pathString = (path+'/'+file)
                         exportDf = pd.read_csv(pathString)
 
+                        # if accelerometer, add jerk columns to table
                         if pathString.find('ccel') > 0:
                             jerkM, jerkX, jerkY, jerkZ = jerk(exportDf)
                             mag = magnitude(exportDf)
@@ -58,6 +64,7 @@ with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE=
                             cursor.execute(jerkCol)
                             conn.commit()
 
+                            # insert raw and computed data into the corresponding table
                             for id_ in range(len(jerkZ)):
                                 insertQuery = f"INSERT INTO [dbo].[{file}] (time, seconds_elapsed, x, y, \
                                                 z, mag, lagX0, lagX1, lagX2, lagY0, lagY1, lagY2, lagZ0, \
@@ -102,6 +109,7 @@ with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE=
                         print(e)
                         continue
 
+        # loop through directories agian, create orientation tables
         for path in margFolders:
             for dirContents in margFiles:
                 for file in dirContents:
