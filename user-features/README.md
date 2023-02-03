@@ -37,14 +37,12 @@ Each team member was assigned creation of feature sets selected from various sta
 ## Orientation
 Additionally, to measure our mobile phones' orientation in space, we have implemented a quaternion-based filter for our MARG data gathered during performed activities. Our code was based on steps from [Keeping a Good Attitude: A Quaternion-Based Orientation Filter for IMUs and MARGs (DOI: 10.3390/s150819302)](https://www.mdpi.com/1424-8220/15/8/19302).
 
-## `createTable.py`
-Data from tests is loaded to a SQL database using before-mentioned python script. Script inserts raw data to its corresponding table, calculates magnitude, lag and jerk (in case of Accelerometer data) and appends it to parent table. The last covered step involves calculating the quaternion-based orientation of the phone in space and creating its own table. The process' steps are shown below:
+## createTable.py
+`createTable.py` is a Python script created for pushing raw data from MARG sensors to a SQL database. It uses `pyodbc` for database connection and data manipulation. Firstly, the script creates new tables with all raw data columns and additional *magnitude*, *lag* and, in accelerometer case, *jerk* columns. After successful table creation it uses *executemany* method to quickly insert all the data from `.csv` files. The process' steps are shown below:
 
-1. Create seperate directory for each performed test. Name of the directory and its contents will be used to create *orientation* and `.csv` files' tables.
+1. Create seperate directory for each performed test. Name of the files stored in it will be used to create `.csv` files' tables.
 2. Read env variables necessary to open DB connection.
 3. Loop through each directory in `streaming-work-dir` and create lists with its contents.
-4. Open connection to database: for each file create a new table. If name of the read file has `ccel` string in it, add additional columns to store *jerk* data.
+4. Open connection to database: for each file create a new table. If name of the read file has `ccel` string in it, add additional columns to store jerk data.
 5. Compute magnitude, lag and, if necessary, jerk data. Start inserting data into table.
 6. Repeat until all the data has been pushed to the database.
-7. Loop through the directories again, assign paths to `.csv` files to compute orientation.
-8. Create table for orienatation data and repeat until data from each directry has been processed.
