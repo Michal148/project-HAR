@@ -48,7 +48,7 @@ Additionally, to measure our mobile phones' orientation in space, we have implem
 6. Repeat until all the data has been pushed to the database.
 
 ## interpolation.py
-During our tests, data gathered from accelerometer, gyroscope and magnetometer sensors turned out not to be in an ideal sync. To solve this problem we've come up with a short function, which uses `PchipInterpolator` from `scipy.interpolate` module. Function takes one argument (dataframe with raw sensor data) and returns dataframe with interpolated data in 0.01s intervals with *magnitude* and *lag* columns.
+During our tests, data gathered from accelerometer, gyroscope and magnetometer sensors turned out not to be in an ideal sync. To solve this problem we've come up with a short function, which uses `PchipInterpolator` from `scipy.interpolate` module. Function takes three arguments (accelerometer, gyroscope and magnetometer dataframes with raw sensor data) and returns dataframe with interpolated data in 0.01s intervals with *magnitude*, *lag* and in case of accelerometer - *jerk* columns.
 
 ## Feature extraction pipeline
 ![](misc/pipeline.excalidraw.png)
