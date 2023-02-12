@@ -99,10 +99,8 @@ def orientation(accel, magne, gyro):
     acc = normalize(accel.drop('time', axis=1).drop('seconds_elapsed', axis=1))
     mag = normalize(magne.drop('time', axis=1).drop('seconds_elapsed', axis=1))
     gyr = gyro.drop('time', axis=1).drop('seconds_elapsed', axis=1)
-
-    shortest = min(len(acc), len(mag), len(gyr))
     
-    for id_ in range(shortest - 1):
+    for id_ in range(len(acc) - 1):
         # for prediction step of filter, we take quaternion created by the first readings from
         # accelerometer and magnetometer during first iteration
         if id_ == 0:
