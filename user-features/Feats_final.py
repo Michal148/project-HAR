@@ -125,8 +125,8 @@ def top3(data):
     com_fft[1:int(np.ceil(n / 2) + 1)] = com_fft[1:int(np.ceil(n / 2) + 1)] * 2
     com_fft[int(np.ceil(n / 2) + 1):].fill(0)
 
-    fvec_modified, abs_fft_modified = frequency_vector, com_fft
-    peaks_modified, _ = find_peaks(abs_fft_modified, height=0)
+    _, abs_fft_modified = frequency_vector, com_fft
+    peaks_modified, _ = signal.find_peaks(abs_fft_modified, height=0)
     top3_value = np.in1d(abs_fft_modified, np.sort(abs_fft_modified[peaks_modified])[-3:]).nonzero()[0]
 
     return top3_value
@@ -166,38 +166,27 @@ def median_frequency(data):
         prev_left = 10e13
 
         while True:
-            # print(bep)
             sum_left = sum(x for x in c[:bep])
             sum_right = sum(y for y in c[bep:])
 
             if sum_left < sum_right:
                 bep = prev_bep + int(n / (2 ** counter))
-                # print('shifting right')
 
             elif sum_left > sum_right:
                 bep = prev_bep - int(n / (2 ** counter))
-                # print('shifting left')
 
             else:
-                # print(bep)
                 break
 
             curr_diff = np.abs(sum_right - sum_left)
-            # print([sumLeft, sumRight])
-            # print([prevDiff, currDiff])
 
             if sum_left == prev_left:
                 rep_count += 1
 
             if rep_count == 10:
-                # print(prevBep)
-                # print(c[prevBep])
-                # plt.plot(c)
                 break
 
             if curr_diff >= 15 * prev_diff:
-                # print(prevBep)
-                # print(c[prevBep])
                 break
 
             else:
@@ -365,23 +354,25 @@ def autoregyw(data):
 
 # Auto-regression coefficients with Burg order equal to four correlation coefficients between two signals
 def autoregburg(data):
-    b = []
+    autoregburg_value = []
     for col in data.columns:
-        a, sigma = sm.regression.linear_model.burg(data[col], order=4)
-        b.append(a)
+        a, _ = sm.regression.linear_model.burg(data[col], order=4)
+        autoregburg_value.append(a)
 
     return autoregburg_value
 
 
 # Signal magnitude area
 def sma(data):
+    N = len(data)
     x = data['x']
     y = data['y']
     z = data['z']
     sma_value = 0
-    sma_value += np.abs(x[i]) + np.abs(y[i]) + np.abs(z[i])
+    for i in range(N):
+        sma += np.abs(x[i]) + np.abs(y[i]) + np.abs(z[i])
 
-    return sma_value
+    return sma_value / N
 
 
 # Correlation coefficient
@@ -420,18 +411,18 @@ def wilson_amp(data, t=0):
 
 # Interquartile range
 def iqr(dataf):
-    lst = []
+    iqr_value = []
     q1 = one_quarter(dataf)
     q3 = three_quarters(dataf)
     for i in range(len(q1)):
-        lst.append(q3[i] - q1[i])
+        iqr_value.append(q3[i] - q1[i])
 
-    return lst
+    return iqr_value
 
 
 # Three quarters of frequency
 def three_quarters(data):
-    lst = []
+    three_quarters_value = []
     datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
     for i in datawt.columns:
         fvec, dff = fft_sig(data[i])
@@ -444,14 +435,14 @@ def three_quarters(data):
                 continue
 
             if round(norm_arr[j], 2) >= 0.75:
-                lst.append(fvec[j])
+                three_quarters_value.append(fvec[j])
                 break
-    return lst
+    return three_quarters_value
 
 
 # One quarter of frequency
 def one_quarter(data):
-    lst = []
+    one_quarter_values = []
     datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
     for i in datawt.columns:
         fvec, dff = fft_sig(data[i])
@@ -464,22 +455,22 @@ def one_quarter(data):
                 continue
 
             if round(norm_arr[j], 2) >= 0.25:
-                lst.append(fvec[j])
+                one_quarter_values.append(fvec[j])
                 break
 
-    return lst
+    return one_quarter_values
 
 
 # Mean power frequency
 def mpf(data):
-    lst = []
+    mean_power_frequency = []
     datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
     for i in datawt.columns:
         fvec, dff = fft_sig(data[i])
         value = sum(p * f for p in dff for f in fvec) / sum(p for p in dff)
-        lst.append(value)
+        mean_power_frequency.append(value)
 
-    return lst
+    return mean_power_frequency
 
 
 

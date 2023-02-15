@@ -2,10 +2,7 @@ import pyodbc
 import pandas as pd 
 from pathlib import Path
 import os
-from kasper.feats import *
-from Michał.Characteristics import magnitude
-from wiktor.feats import lag
-from Orientation import *
+from Feats_columns import *
 
 # naming convention
 # SensorNameActivityPlatform.csv

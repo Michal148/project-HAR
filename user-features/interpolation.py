@@ -1,9 +1,7 @@
 from matplotlib import pyplot as plt
 import pandas as pd
 from scipy.interpolate import PchipInterpolator
-from kasper.feats import *
-from Michał.Characteristics import magnitude
-from wiktor.feats import lag
+from Feats_columns import *
 
 # takes in raw data from sensor
 def interpolation(acc, mag, gyr):

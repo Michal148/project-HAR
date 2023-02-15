@@ -46,7 +46,7 @@ def lag(n, sig):
 
         lagged_df_x = lagged_df_x.append(pd.Series(temp_list_x, index=lagged_df_x.columns[:len(temp_list_x)]),
                                          ignore_index=True)
-        lagged_df_y = lagged_df_y.append(pd.Series(tempListY, index=lagged_df_y.columns[:len(temp_list_y)]),
+        lagged_df_y = lagged_df_y.append(pd.Series(temp_list_y, index=lagged_df_y.columns[:len(temp_list_y)]),
                                          ignore_index=True)
         lagged_df_z = lagged_df_z.append(pd.Series(temp_list_z, index=lagged_df_z.columns[:len(temp_list_z)]),
                                          ignore_index=True)
