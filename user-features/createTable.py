@@ -122,6 +122,8 @@ with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE=
                 elif "Jogging" in str(file):
                     activityName = "jogging"
 
+                # for each sensor file calculate magnitude and lag; in case of accelerometer add jerk values
+                
                 if str(file).find("ccel") > 0:
                     activityPackage = os.path.basename(os.path.normpath(file)).replace('.csv', '').replace('Accelerometer', '')
                     print("processing: " + str(file))

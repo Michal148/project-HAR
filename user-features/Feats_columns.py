@@ -10,6 +10,7 @@ import statsmodels.api as sm
 warnings.filterwarnings('ignore')
 
 
+# calculate lag
 def lag(n, sig):
     col_names = ['lag ' + str(el) for el in range(n + 1)]
     lagged_df_x = pd.DataFrame(columns=col_names)
@@ -54,7 +55,6 @@ def lag(n, sig):
 
     return lagged_df_x, lagged_df_y, lagged_df_z
 
-
 # jerk, return resultant jerk, as well as from X, Y, Z
 def jerk(data):
     n = len(data['x'])
@@ -77,12 +77,12 @@ def jerk(data):
 
     return jerk1, jerk_x, jerk_y, jerk_z
 
-
+# return magnitude - calculated from x, y, z axes data
 def magnitude(data):
     length = len(data)
     mag = []
     for i in range(length):
-        mag_wynik = np.sqrt(data['x'][i]**2 + data['y'][i]**2 + data['z'][i]**2)
-        mag.append(mag_wynik)
+        mag_value = np.sqrt(data['x'][i]**2 + data['y'][i]**2 + data['z'][i]**2)
+        mag.append(mag_value)
 
     return mag

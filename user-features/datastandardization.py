@@ -1,5 +1,9 @@
 import pandas as pd
 
+# used to standardize Android devices data
+# read the dataframe, check the platform. if device is Android - change the sign of the data in the Z column
+# and divide each applicable column by the value of g
+
 def ios_conversion(data):
     if data['platform'][0] == "apple":
         return data
