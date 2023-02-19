@@ -53,3 +53,5 @@ user-features/streaming-work-dir/KubaOrientationPrzysiady2/MagnetometerKubaSquat
 user-features/streaming-work-dir/KubaOrientationPrzysiady3/AccelerometerKubaSquats3Apple.csv
 user-features/streaming-work-dir/KubaOrientationPrzysiady3/GyroscopeKubaSquats3Apple.csv
 user-features/streaming-work-dir/KubaOrientationPrzysiady3/MagnetometerKubaSquats3Apple.csv
+user-features/pipeline.py
+.gitignore
