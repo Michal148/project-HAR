@@ -471,20 +471,23 @@ def mpf(data):
     return mean_power_frequency
 
 
-#gg = ['acc_z_', 'acc_y_', 'acc_x_']
-#gg1 = gg*4
-#print(gg1)
-kurtosis_t = kurtosis(da)[0]
-kurtosis_f = kurtosis(da)[1]
-skewness_t = skewness(da)[0]
-skewness_f = skewness(da)[1]
+def feats_df(da):
+    #gg = ['acc_z_', 'acc_y_', 'acc_x_']
+    #gg1 = gg*4
+    #print(gg1)
+    kurtosis_t = kurtosis(da)[0]
+    kurtosis_f = kurtosis(da)[1]
+    skewness_t = skewness(da)[0]
+    skewness_f = skewness(da)[1]
 
-mpf_ = (*mpf(da), *one_quarter(da), *three_quarters(da), *iqr(da), *wilson_amp(da), *crossco(da), *corecoef(da),
-        sma(da), *slope_change(da), *rms(da), *stdev(da), *mean(da), *mad(da), *zerocr(da), *logdetect(da), *wf(da),
-        *mav(da), *p2p(da), *median_frequency(da), *entropy(da), *kurtosis_t, *kurtosis_f, *skewness_t, *skewness_f,
-        *top3(da))
+    mpf_ = (*mpf(da), *one_quarter(da), *three_quarters(da), *iqr(da), *wilson_amp(da), *crossco(da), *corecoef(da),
+            sma(da), *slope_change(da), *rms(da), *stdev(da), *mean(da), *mad(da), *zerocr(da), *logdetect(da), *wf(da),
+            *mav(da), *p2p(da), *median_frequency(da), *entropy(da), *kurtosis_t, *kurtosis_f, *skewness_t, *skewness_f,
+            *top3(da), *autoregyw(da)[0], *autoregyw(da)[1], *autoregyw(da)[2], *autoregburg(da)[0],
+            *autoregburg(da)[1], *autoregburg(da)[2])
 
-pd = pd.DataFrame([mpf_], columns=['acc_z_mpf', 'acc_y_mpf', 'acc_x_mpf', 'acc_z_one_quarter', 'acc_y_one_quarter',
+    data_frame = pd.DataFrame([mpf_], columns=['acc_z_mpf', 'acc_y_mpf', 'acc_x_mpf', 'acc_z_one_quarter',
+                                   'acc_y_one_quarter',
                                    'acc_x_one_quarter', 'acc_z_three_quarters', 'acc_y_three_quarters',
                                    'acc_x_three_quarters', 'acc_z_iqr', 'acc_y_iqr', 'acc_x_iqr', 'acc_z_wilson_amp',
                                    'acc_y_wilson_amp', 'acc_x_wilson_amp', 'acc_z_crossco', 'acc_y_crossco',
@@ -499,9 +502,17 @@ pd = pd.DataFrame([mpf_], columns=['acc_z_mpf', 'acc_y_mpf', 'acc_x_mpf', 'acc_z
                                    'acc_x_entropy', 'acc_z_kurtosis_t', 'acc_y_kurtosis_t', 'acc_x_kurtosis_t',
                                    'acc_z_kurtosis_f', 'acc_y_kurtosis_f', 'acc_x_kurtosis_f', 'acc_z_skewness_t',
                                    'acc_y_skewness_t', 'acc_x_skewness_t', 'acc_z_skewness_f', 'acc_y_skewness_f',
-                                   'acc_x_skewness_f', 'acc_x_top3', 'acc_x_top3', 'acc_x_top3'])
+                                   'acc_x_skewness_f', 'acc_z_top3', 'acc_y_top3', 'acc_x_top3', 'acc_z_autoregyw_1',
+                                   'acc_z_autoregyw_2', 'acc_z_autoregyw_3', 'acc_z_autoregyw_4', 'acc_y_autoregyw_1',
+                                   'acc_y_autoregyw_2', 'acc_y_autoregyw_3', 'acc_y_autoregyw_4', 'acc_x_autoregyw_1',
+                                   'acc_x_autoregyw_2', 'acc_x_autoregyw_3', 'acc_x_autoregyw_4', 'acc_z_autoregburg_1',
+                                   'acc_z_autoregburg_2', 'acc_z_autoregburg_3', 'acc_z_autoregburg_4',
+                                   'acc_y_autoregburg_1', 'acc_y_autoregburg_2', 'acc_y_autoregburg_3',
+                                   'acc_y_autoregburg_4', 'acc_x_autoregburg_1', 'acc_x_autoregburg_2',
+                                   'acc_x_autoregburg_3', 'acc_x_autoregburg_4'])
 
-print(pd.loc[0])
+    return data_frame
+#print(pd.loc[0])
 #pd.to_csv('cechy.csv')
-print(pd)
-#'acc_z_enwatco', 'acc_y_enwatco', 'acc_x_enwatco'
+#print(pd)
+print(feats_df(da))
