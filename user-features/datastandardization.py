@@ -9,14 +9,14 @@ def ios_conversion(data):
         return data
     
     else:
-        data['x'] = data['x'] / 9.80665
-        data['y'] = data['z'] / 9.80665
-        data['z'] = -data['z'] / 9.80665
-        data['mag'] = data['mag'] / 9.80665
+        data['x'] = data['x'].astype(float) / 9.80665
+        data['y'] = data['z'].astype(float) / 9.80665
+        data['z'] = -data['z'].astype(float) / 9.80665
+        data['mag'] = data['mag'].astype(float) / 9.80665
         
-        data['lagX0'] = data['lagX0'] / 9.80665
-        data['lagY0'] = data['lagY0'] / 9.80665
-        data['lagZ0'] = data['lagZ0'] / 9.80665
+        data['lagX0'] = data['lagX0'].astype(float) / 9.80665
+        data['lagY0'] = data['lagY0'].astype(float) / 9.80665
+        data['lagZ0'] = data['lagZ0'].astype(float) / 9.80665
 
         data['lagX1'].iloc[1:] = data['lagX1'].iloc[1:].astype(float) / 9.80665
         data['lagY1'].iloc[1:] = data['lagY1'].iloc[1:].astype(float) / 9.80665

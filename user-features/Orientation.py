@@ -96,9 +96,9 @@ beta = 0.01
 # filter loop
 def orientation(accel, magne, gyro):
     orientationList = []
-    acc = normalize(accel.drop('time', axis=1).drop('seconds_elapsed', axis=1))
-    mag = normalize(magne.drop('time', axis=1).drop('seconds_elapsed', axis=1))
-    gyr = gyro.drop('time', axis=1).drop('seconds_elapsed', axis=1)
+    acc = normalize(accel.drop('time', axis=1))
+    mag = normalize(magne.drop('time', axis=1))
+    gyr = gyro.drop('time', axis=1)
     
     for id_ in range(len(acc) - 1):
         # for prediction step of filter, we take quaternion created by the first readings from
