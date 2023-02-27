@@ -28,7 +28,7 @@ def kurtosis(data):
     kurtosis_value = []
     kurtosis_value_freq = []
     datawt = data.drop(['time'], axis=1)
-    for n in ['x', 'y', 'z']:
+    for n in datawt.columns:
         length = len(data[n])
         mean_value = sum(data[n]) / length
         std = (sum((var - mean_value) ** 2 for var in data[n]) / length) ** 0.5
@@ -51,7 +51,7 @@ def skewness(data):
     skewness_value_time = []
     skewness_value_freq = []
     datawt = data.drop(['time'], axis=1)
-    for col in ['x', 'y', 'z']:
+    for col in datawt.columns:
         n = len(data[col])
         mean_value = sum(data[col]) / n
         std = (sum((x - mean_value) ** 2 for x in data[col]) / n) ** 0.5
@@ -72,7 +72,7 @@ def skewness(data):
 def enwatco(data):
     enwatco_value = []
     datawt = data.drop(['time'], axis=1)
-    for n in ['x', 'y', 'z']:
+    for n in datawt.columns:
         db = pywt.Wavelet('sym4')
         decomp = pywt.dwt_max_level(len(data), db) + 1
         x_vec = [None] * decomp
@@ -90,7 +90,7 @@ def enwatco(data):
 def entropy(data, base=None):
     entropy_value = []
     datawt = data.drop(['time'], axis=1)
-    for n in ['x', 'y', 'z']:
+    for n in datawt.columns:
         ff, ffv = fft_sig(data[n])
         n_labels = len(ffv)
 
@@ -114,7 +114,8 @@ def entropy(data, base=None):
 
 # Top 3 value
 def top3(data):
-    sig = np.sum(data.loc[:, ['x', 'y', 'z']], axis=1)
+    datawt = data.drop(['time'], axis=1)
+    sig = np.sum(data.loc[:, datawt.columns], axis=1)
     # frequency_sampling = np.sum(np.array(data['seconds_elapsed'] < 1).astype(int))/1
     n = len(sig)
     frequency_vector = np.arange(0, 100, 100 / n)
@@ -151,7 +152,7 @@ def medianenergy(data):
 def median_frequency(data):
     median_frequency_value = []
     datawt = data.drop(['time'], axis=1)
-    for n in ['x', 'y', 'z']:
+    for n in datawt.columns:
         f, m = fft_sig(data[n])
         a, c = medianenergy(m)
         n = len(c)
@@ -202,7 +203,7 @@ def median_frequency(data):
 def p2p(data):
     p2p_value = []
     datawt = data.drop(['time'], axis=1)
-    for col in ['x', 'y', 'z']:
+    for col in datawt.columns:
         minim = min(data[col])
         maxim = max(data[col])
         p2p_value.append(maxim - minim)
@@ -214,7 +215,7 @@ def p2p(data):
 def mav(data):
     mav_value = []
     datawt = data.drop(['time'], axis=1)
-    for col in ['x', 'y', 'z']:
+    for col in datawt.columns:
 
         mean_sum = sum(abs(x) for x in data[col])
         mav_value.append(mean_sum)
@@ -226,7 +227,7 @@ def mav(data):
 def wf(data):
     wf_value = []
     datawt = data.drop(['time'], axis=1)
-    for col in ['x', 'y', 'z']:
+    for col in datawt.columns:
         n = len(data[col])
         waveform = 0
 
@@ -241,7 +242,7 @@ def wf(data):
 def logdetect(data):
     logdetect_value = []
     datawt = data.drop(['time'], axis=1)
-    for col in ['x', 'y', 'z']:
+    for col in datawt.columns:
         n = len(data[col])
         logdetect_value.append(math.exp(sum(math.log10(abs(x)) for x in data[col]) * 1 / n))
 
@@ -252,7 +253,7 @@ def logdetect(data):
 def zerocr(data):
     zerocr_value = []
     datawt = data.drop(['time'], axis=1)
-    for n in ['x', 'y', 'z']:
+    for n in datawt.columns:
         zero_crossinga = np.where(np.diff(np.sign(data[n])))[0]
         zc1 = len(zero_crossinga)
         zerocr_value.append(zc1)
@@ -264,7 +265,7 @@ def zerocr(data):
 def mad(data):
     mad_value = []
     datawt = data.drop(['time'], axis=1)
-    for n in ['x', 'y', 'z']:
+    for n in datawt.columns:
         median_number = np.median(data[n])
         mad1 = np.median([abs(var - median_number) for var in data[n]])
         mad_value.append(mad1)
@@ -276,7 +277,7 @@ def mad(data):
 def mean(data):
     mean_value = []
     datawt = data.drop(['time'], axis=1)
-    for col in ['x', 'y', 'z']:
+    for col in datawt.columns:
         value = sum(data[col]) / len(data[col])
         mean_value.append(value)
 
@@ -287,7 +288,7 @@ def mean(data):
 def stdev(data, correction=1):
     stdev_value = []
     datawt = data.drop(['time'], axis=1)
-    for col in ['x', 'y', 'z']:
+    for col in datawt.columns:
         n = len(data[col])
         value = sum(data[col]) / n
         dev = sum((x - value)**2 for x in data[col]) / (n - correction)
@@ -300,7 +301,7 @@ def stdev(data, correction=1):
 def rms(data):
     rms_value = []
     datawt = data.drop(['time'], axis=1)
-    for col in ['x', 'y', 'z']:
+    for col in datawt.columns:
         n = len(data[col])
         value = math.sqrt(sum(x**2 for x in data[col])/n)
         rms_value.append(value)
@@ -312,7 +313,7 @@ def rms(data):
 def energy(data):
     energy_value = []
     datawt = data.drop(['time'], axis=1)
-    for col in ['x', 'y', 'z']:
+    for col in datawt.columns:
         n = len(data[col])
         value = sum(abs(x)**2 for x in data[col])/n
         energy_value.append(value)
@@ -325,7 +326,7 @@ def slope_change(data):
     change = 0
     slope_change_value = []
     datawt = data.drop(['time'], axis=1)
-    for col in ['x', 'y', 'z']:
+    for col in datawt.columns:
         change = 0
 
         for i in range(1, len(data)):
@@ -342,7 +343,7 @@ def slope_change(data):
 def autoregyw(data):
     autoregyw_value = []
     datawt = data.drop(['time'], axis=1)
-    for col in ['x', 'y', 'z']:
+    for col in datawt.columns:
         a, sigma = sm.regression.yule_walker(data[col], order=4)
         autoregyw_value.append(a)
 
@@ -392,7 +393,8 @@ def crossco(data):
 
 # Wilson amplitude
 def wilson_amp(data, t=0):
-    cols = ['x', 'y', 'z']
+    datawt = data.drop(['time'], axis=1)
+    cols = datawt.columns
     wa = []
     for col in cols:
         n = len(data[col])
@@ -421,7 +423,7 @@ def iqr(dataf):
 def three_quarters(data):
     three_quarters_value = []
     datawt = data.drop(['time'], axis=1)
-    for i in ['x', 'y', 'z']:
+    for i in datawt.columns:
         fvec, dff = fft_sig(data[i])
         arr = np.cumsum(dff)
         norm_arr = arr / arr[-1]
@@ -441,7 +443,7 @@ def three_quarters(data):
 def one_quarter(data):
     one_quarter_values = []
     datawt = data.drop(['time'], axis=1)
-    for i in ['x', 'y', 'z']:
+    for i in datawt.columns:
         fvec, dff = fft_sig(data[i])
         arr = np.cumsum(dff)
         norm_arr = arr / arr[-1]
@@ -462,7 +464,7 @@ def one_quarter(data):
 def mpf(data):
     mean_power_frequency = []
     datawt = data.drop(['time'], axis=1)
-    for i in ['x', 'y', 'z']:
+    for i in datawt.columns:
         fvec, dff = fft_sig(data[i])
         value = sum(p * f for p in dff for f in fvec) / sum(p for p in dff)
         mean_power_frequency.append(value)
