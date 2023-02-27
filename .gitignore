@@ -1,4 +1,3 @@
-
 __pycache__/__main__.cpython-39.pyc
 .idea/misc.xml
 .idea/modules.xml
@@ -9,6 +8,7 @@ __pycache__/__main__.cpython-39.pyc
 .DS_Store
 .idea/.gitignore
 .idea
+.gitignore
 Accelerometer.csv
 Gyroscope.csv
 Magnetometer.csv
@@ -53,5 +53,5 @@ user-features/streaming-work-dir/KubaOrientationPrzysiady2/MagnetometerKubaSquat
 user-features/streaming-work-dir/KubaOrientationPrzysiady3/AccelerometerKubaSquats3Apple.csv
 user-features/streaming-work-dir/KubaOrientationPrzysiady3/GyroscopeKubaSquats3Apple.csv
 user-features/streaming-work-dir/KubaOrientationPrzysiady3/MagnetometerKubaSquats3Apple.csv
-user-features/pipeline.py
-.gitignore
+user-features/bin.py
+

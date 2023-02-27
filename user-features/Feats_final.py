@@ -6,7 +6,7 @@ import warnings
 import pywt
 import statsmodels.api as sm
 warnings.filterwarnings('ignore')
-da = pd.read_csv('Accelerometer.csv')
+
 
 
 def fft_sig(sig, fs=100):
@@ -27,8 +27,8 @@ def fft_sig(sig, fs=100):
 def kurtosis(data):
     kurtosis_value = []
     kurtosis_value_freq = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for n in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for n in ['x', 'y', 'z']:
         length = len(data[n])
         mean_value = sum(data[n]) / length
         std = (sum((var - mean_value) ** 2 for var in data[n]) / length) ** 0.5
@@ -50,8 +50,8 @@ def kurtosis(data):
 def skewness(data):
     skewness_value_time = []
     skewness_value_freq = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for col in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for col in ['x', 'y', 'z']:
         n = len(data[col])
         mean_value = sum(data[col]) / n
         std = (sum((x - mean_value) ** 2 for x in data[col]) / n) ** 0.5
@@ -71,8 +71,8 @@ def skewness(data):
 # Energy wavelet coefficient
 def enwatco(data):
     enwatco_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for n in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for n in ['x', 'y', 'z']:
         db = pywt.Wavelet('sym4')
         decomp = pywt.dwt_max_level(len(data), db) + 1
         x_vec = [None] * decomp
@@ -89,8 +89,8 @@ def enwatco(data):
 # Entropy
 def entropy(data, base=None):
     entropy_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for n in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for n in ['x', 'y', 'z']:
         ff, ffv = fft_sig(data[n])
         n_labels = len(ffv)
 
@@ -115,9 +115,9 @@ def entropy(data, base=None):
 # Top 3 value
 def top3(data):
     sig = np.sum(data.loc[:, ['x', 'y', 'z']], axis=1)
-    frequency_sampling = np.sum(np.array(data['seconds_elapsed'] < 1).astype(int))/1
+    # frequency_sampling = np.sum(np.array(data['seconds_elapsed'] < 1).astype(int))/1
     n = len(sig)
-    frequency_vector = np.arange(0, frequency_sampling, frequency_sampling / n)
+    frequency_vector = np.arange(0, 100, 100 / n)
     com_fft = np.abs(np.fft.fft(sig)) / n
     com_fft[1:int(np.ceil(n / 2) + 1)] = com_fft[1:int(np.ceil(n / 2) + 1)] * 2
     com_fft[int(np.ceil(n / 2) + 1):].fill(0)
@@ -150,8 +150,8 @@ def medianenergy(data):
 # Median frequency
 def median_frequency(data):
     median_frequency_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for n in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for n in ['x', 'y', 'z']:
         f, m = fft_sig(data[n])
         a, c = medianenergy(m)
         n = len(c)
@@ -201,8 +201,8 @@ def median_frequency(data):
 # Peak to peak
 def p2p(data):
     p2p_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for col in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for col in ['x', 'y', 'z']:
         minim = min(data[col])
         maxim = max(data[col])
         p2p_value.append(maxim - minim)
@@ -213,8 +213,8 @@ def p2p(data):
 # Mean absolute value
 def mav(data):
     mav_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for col in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for col in ['x', 'y', 'z']:
 
         mean_sum = sum(abs(x) for x in data[col])
         mav_value.append(mean_sum)
@@ -225,8 +225,8 @@ def mav(data):
 # Waveform length
 def wf(data):
     wf_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for col in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for col in ['x', 'y', 'z']:
         n = len(data[col])
         waveform = 0
 
@@ -240,8 +240,8 @@ def wf(data):
 # Log detector
 def logdetect(data):
     logdetect_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for col in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for col in ['x', 'y', 'z']:
         n = len(data[col])
         logdetect_value.append(math.exp(sum(math.log10(abs(x)) for x in data[col]) * 1 / n))
 
@@ -251,8 +251,8 @@ def logdetect(data):
 # Zero crossing
 def zerocr(data):
     zerocr_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for n in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for n in ['x', 'y', 'z']:
         zero_crossinga = np.where(np.diff(np.sign(data[n])))[0]
         zc1 = len(zero_crossinga)
         zerocr_value.append(zc1)
@@ -263,8 +263,8 @@ def zerocr(data):
 # Median absolute deviation
 def mad(data):
     mad_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for n in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for n in ['x', 'y', 'z']:
         median_number = np.median(data[n])
         mad1 = np.median([abs(var - median_number) for var in data[n]])
         mad_value.append(mad1)
@@ -275,8 +275,8 @@ def mad(data):
 # Mean value
 def mean(data):
     mean_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for col in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for col in ['x', 'y', 'z']:
         value = sum(data[col]) / len(data[col])
         mean_value.append(value)
 
@@ -286,8 +286,8 @@ def mean(data):
 # Standard deviation
 def stdev(data, correction=1):
     stdev_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for col in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for col in ['x', 'y', 'z']:
         n = len(data[col])
         value = sum(data[col]) / n
         dev = sum((x - value)**2 for x in data[col]) / (n - correction)
@@ -299,8 +299,8 @@ def stdev(data, correction=1):
 # Root mean square
 def rms(data):
     rms_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for col in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for col in ['x', 'y', 'z']:
         n = len(data[col])
         value = math.sqrt(sum(x**2 for x in data[col])/n)
         rms_value.append(value)
@@ -311,8 +311,8 @@ def rms(data):
 # Energy
 def energy(data):
     energy_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for col in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for col in ['x', 'y', 'z']:
         n = len(data[col])
         value = sum(abs(x)**2 for x in data[col])/n
         energy_value.append(value)
@@ -324,8 +324,8 @@ def energy(data):
 def slope_change(data):
     change = 0
     slope_change_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for col in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for col in ['x', 'y', 'z']:
         change = 0
 
         for i in range(1, len(data)):
@@ -341,8 +341,8 @@ def slope_change(data):
 # 4th order auto regressive coefficient
 def autoregyw(data):
     autoregyw_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for col in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for col in ['x', 'y', 'z']:
         a, sigma = sm.regression.yule_walker(data[col], order=4)
         autoregyw_value.append(a)
 
@@ -399,7 +399,7 @@ def wilson_amp(data, t=0):
         amp = 0
 
         for i in range(n - 1):
-            amp += np.sign(abs(data[col][i + 1] - data[col][i]) - t)
+            amp += np.sign(abs(data[col][i+1] - data[col][i]) - t)
 
         wa.append(amp)
 
@@ -420,8 +420,8 @@ def iqr(dataf):
 # Three quarters of frequency
 def three_quarters(data):
     three_quarters_value = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for i in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for i in ['x', 'y', 'z']:
         fvec, dff = fft_sig(data[i])
         arr = np.cumsum(dff)
         norm_arr = arr / arr[-1]
@@ -440,8 +440,8 @@ def three_quarters(data):
 # One quarter of frequency
 def one_quarter(data):
     one_quarter_values = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for i in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for i in ['x', 'y', 'z']:
         fvec, dff = fft_sig(data[i])
         arr = np.cumsum(dff)
         norm_arr = arr / arr[-1]
@@ -461,8 +461,8 @@ def one_quarter(data):
 # Mean power frequency
 def mpf(data):
     mean_power_frequency = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
-    for i in datawt.columns:
+    datawt = data.drop(['time'], axis=1)
+    for i in ['x', 'y', 'z']:
         fvec, dff = fft_sig(data[i])
         value = sum(p * f for p in dff for f in fvec) / sum(p for p in dff)
         mean_power_frequency.append(value)
@@ -482,30 +482,30 @@ def feats_df(data):
             *kurtosis_t, *kurtosis_f, *skewness_t, *skewness_f, *top3(data), *autoregyw(data)[0], *autoregyw(data)[1],
             *autoregyw(data)[2], *autoregburg(data)[0], *autoregburg(data)[1], *autoregburg(data)[2])
 
-    data_frame = pd.DataFrame([mpf_], columns=['acc_z_mpf', 'acc_y_mpf', 'acc_x_mpf', 'acc_z_one_quarter',
-                                   'acc_y_one_quarter',
-                                   'acc_x_one_quarter', 'acc_z_three_quarters', 'acc_y_three_quarters',
-                                   'acc_x_three_quarters', 'acc_z_iqr', 'acc_y_iqr', 'acc_x_iqr', 'acc_z_wilson_amp',
-                                   'acc_y_wilson_amp', 'acc_x_wilson_amp', 'acc_z_crossco', 'acc_y_crossco',
-                                   'acc_x_crossco', 'acc_z_corecoef', 'acc_y_corecoef', 'acc_x_corecoef', 'acc_sma',
-                                   'acc_z_slope_change', 'acc_y_slope_change', 'acc_x_slope_change', 'acc_z_rms',
-                                   'acc_y_rms', 'acc_x_rms', 'acc_z_stdev', 'acc_y_stdev', 'acc_x_stdev', 'acc_z_mean',
-                                   'acc_y_mean', 'acc_x_mean', 'acc_z_mad', 'acc_y_mad', 'acc_x_mad', 'acc_z_zerocr',
-                                   'acc_y_zerocr', 'acc_x_zerocr', 'acc_z_logdetect', 'acc_y_logdetect',
-                                   'acc_x_logdetect', 'acc_z_wf', 'acc_y_wf', 'acc_x_wf', 'acc_z_mav', 'acc_y_mav',
-                                   'acc_x_mav', 'acc_z_p2p', 'acc_y_p2p', 'acc_x_p2p', 'acc_z_median_frequency',
-                                   'acc_y_median_frequency', 'acc_x_median_frequency', 'acc_z_entropy', 'acc_y_entropy',
-                                   'acc_x_entropy', 'acc_z_kurtosis_t', 'acc_y_kurtosis_t', 'acc_x_kurtosis_t',
-                                   'acc_z_kurtosis_f', 'acc_y_kurtosis_f', 'acc_x_kurtosis_f', 'acc_z_skewness_t',
-                                   'acc_y_skewness_t', 'acc_x_skewness_t', 'acc_z_skewness_f', 'acc_y_skewness_f',
-                                   'acc_x_skewness_f', 'acc_z_top3', 'acc_y_top3', 'acc_x_top3', 'acc_z_autoregyw_1',
-                                   'acc_z_autoregyw_2', 'acc_z_autoregyw_3', 'acc_z_autoregyw_4', 'acc_y_autoregyw_1',
-                                   'acc_y_autoregyw_2', 'acc_y_autoregyw_3', 'acc_y_autoregyw_4', 'acc_x_autoregyw_1',
-                                   'acc_x_autoregyw_2', 'acc_x_autoregyw_3', 'acc_x_autoregyw_4', 'acc_z_autoregburg_1',
-                                   'acc_z_autoregburg_2', 'acc_z_autoregburg_3', 'acc_z_autoregburg_4',
-                                   'acc_y_autoregburg_1', 'acc_y_autoregburg_2', 'acc_y_autoregburg_3',
-                                   'acc_y_autoregburg_4', 'acc_x_autoregburg_1', 'acc_x_autoregburg_2',
-                                   'acc_x_autoregburg_3', 'acc_x_autoregburg_4'])
+    data_frame = pd.DataFrame([mpf_], columns=['z_mpf', 'y_mpf', 'x_mpf', 'z_one_quarter',
+                                   'y_one_quarter',
+                                   'x_one_quarter', 'z_three_quarters', 'y_three_quarters',
+                                   'x_three_quarters', 'z_iqr', 'y_iqr', 'x_iqr', 'z_wilson_amp',
+                                   'y_wilson_amp', 'x_wilson_amp', 'z_crossco', 'y_crossco',
+                                   'x_crossco', 'z_corecoef', 'y_corecoef', 'x_corecoef', 'sma',
+                                   'z_slope_change', 'y_slope_change', 'x_slope_change', 'z_rms',
+                                   'y_rms', 'x_rms', 'z_stdev', 'y_stdev', 'x_stdev', 'z_mean',
+                                   'y_mean', 'x_mean', 'z_mad', 'y_mad', 'x_mad', 'z_zerocr',
+                                   'y_zerocr', 'x_zerocr', 'z_logdetect', 'y_logdetect',
+                                   'x_logdetect', 'z_wf', 'y_wf', 'x_wf', 'z_mav', 'y_mav',
+                                   'x_mav', 'z_p2p', 'y_p2p', 'x_p2p', 'z_median_frequency',
+                                   'y_median_frequency', 'x_median_frequency', 'z_entropy', 'y_entropy',
+                                   'x_entropy', 'z_kurtosis_t', 'y_kurtosis_t', 'x_kurtosis_t',
+                                   'z_kurtosis_f', 'y_kurtosis_f', 'x_kurtosis_f', 'z_skewness_t',
+                                   'y_skewness_t', 'x_skewness_t', 'z_skewness_f', 'y_skewness_f',
+                                   'x_skewness_f', 'z_top3', 'y_top3', 'x_top3', 'z_autoregyw_1',
+                                   'z_autoregyw_2', 'z_autoregyw_3', 'z_autoregyw_4', 'y_autoregyw_1',
+                                   'y_autoregyw_2', 'y_autoregyw_3', 'y_autoregyw_4', 'x_autoregyw_1',
+                                   'x_autoregyw_2', 'x_autoregyw_3', 'x_autoregyw_4', 'z_autoregburg_1',
+                                   'z_autoregburg_2', 'z_autoregburg_3', 'z_autoregburg_4',
+                                   'y_autoregburg_1', 'y_autoregburg_2', 'y_autoregburg_3',
+                                   'y_autoregburg_4', 'x_autoregburg_1', 'x_autoregburg_2',
+                                   'x_autoregburg_3', 'x_autoregburg_4'])
 
     return data_frame
 
