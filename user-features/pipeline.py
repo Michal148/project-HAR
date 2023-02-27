@@ -42,11 +42,7 @@ username = os.environ['DBUser']
 password = os.environ['DBPass']
 
 # read table names and group them
-# groupedList = groupTables()
-
-# DELETE
-groupedList = [['AccelerometerKarolDownstairs', 'GyroscopeKarolDownstairs', 'MagnetometerKarolDownstairs'], 
-              ['AccelerometerKarolDownstairs2', 'GyroscopeKarolDownstairs2', 'MagnetometerKarolDownstairs2']]
+groupedList = groupTables()
 
 clearCols = ['jerkX', 'jerkY', 'jerkZ', 'jerkMag']
 
