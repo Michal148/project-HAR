@@ -6,14 +6,6 @@ import warnings
 import pywt
 import statsmodels.api as sm
 warnings.filterwarnings('ignore')
-#da = pd.read_csv('Accelerometer_1.csv').dropna()
-da = pd.read_csv('Accelerometer.csv')
-
-da = da.iloc[1:502].reset_index(False)
-da = da.drop(['index'], axis=1)
-#print(da)
-#print(da1)
-#print(pda)
 
 global gg
 gg = []
@@ -38,7 +30,7 @@ def kurtosis(data):
     kurtosis_value = []
     global gg
 
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for l in ['t','f']:
         for n in datawt.columns:
             gg.append(f"acc_{n}_kurtosis_{l}")
@@ -68,7 +60,7 @@ def kurtosis(data):
 def skewness(data):
     skewness_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for l in ['t','f']:
         for n in datawt.columns:
             gg.append(f"acc_{n}_skewness_{l}")
@@ -95,10 +87,10 @@ def skewness(data):
 def enwatco(data):
     enwatco_value = []
     enwacto_final = []
-    #global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+
+    datawt = data.drop(['time'], axis=1)
     for n in datawt.columns:
-        #gg.append(f"acc_{n}_enwacto")
+
         db = pywt.Wavelet('sym4')
         decomp = pywt.dwt_max_level(len(data), db) + 1
         x_vec = [None] * decomp
@@ -119,14 +111,12 @@ def enwatco(data):
     enwacto_final = [*enwatco_value[0], *enwatco_value[1], *enwatco_value[2]]
 
     return enwacto_final
-#print(enwatco(da))
-#print(gg)
 
 # Entropy
 def entropy(data, base=None):
     entropy_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for n in datawt.columns:
         gg.append(f"acc_{n}_entropy")
         ff, ffv = fft_sig(data[n])
@@ -153,7 +143,7 @@ def entropy(data, base=None):
 # Top 3 value
 def top3(data):
     sig = np.sum(data.loc[:, ['x', 'y', 'z']], axis=1)
-    frequency_sampling = np.sum(np.array(data['seconds_elapsed'] < 1).astype(int))/1
+    frequency_sampling = 100
     n = len(sig)
     frequency_vector = np.arange(0, frequency_sampling, frequency_sampling / n)
     com_fft = np.abs(np.fft.fft(sig)) / n
@@ -164,7 +154,7 @@ def top3(data):
     peaks_modified, _ = signal.find_peaks(abs_fft_modified, height=0)
     top3_value = np.in1d(abs_fft_modified, np.sort(abs_fft_modified[peaks_modified])[-3:]).nonzero()[0]
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for n in datawt.columns:
         gg.append(f"acc_{n}_top3")
 
@@ -193,11 +183,11 @@ def medianenergy(data):
 def median_frequency(data):
     median_frequency_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for n in datawt.columns:
         gg.append(f"acc_{n}_median_frequency")
-        f, m = fft_sig(data[n])
-        a, c = medianenergy(m)
+        _, m = fft_sig(data[n])
+        _, c = medianenergy(m)
         n = len(c)
         prev_bep = int(n / 2)
         bep = int(n / 2)
@@ -246,7 +236,7 @@ def median_frequency(data):
 def p2p(data):
     p2p_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
         minim = min(data[col])
         maxim = max(data[col])
@@ -260,7 +250,7 @@ def p2p(data):
 def mav(data):
     mav_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
 
         mean_sum = sum(abs(x) for x in data[col])
@@ -274,7 +264,7 @@ def mav(data):
 def wf(data):
     wf_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
         n = len(data[col])
         waveform = 0
@@ -291,7 +281,7 @@ def wf(data):
 def logdetect(data):
     logdetect_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
         n = len(data[col])
         logdetect_value.append(math.exp(sum(math.log10(abs(x)) for x in data[col]) * 1 / n))
@@ -304,7 +294,7 @@ def logdetect(data):
 def zerocr(data):
     zerocr_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for n in datawt.columns:
         zero_crossinga = np.where(np.diff(np.sign(data[n])))[0]
         zc1 = len(zero_crossinga)
@@ -318,7 +308,7 @@ def zerocr(data):
 def mad(data):
     mad_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for n in datawt.columns:
         median_number = np.median(data[n])
         mad1 = np.median([abs(var - median_number) for var in data[n]])
@@ -332,7 +322,7 @@ def mad(data):
 def mean(data):
     mean_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
         value = sum(data[col]) / len(data[col])
         mean_value.append(value)
@@ -345,7 +335,7 @@ def mean(data):
 def stdev(data, correction=1):
     stdev_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
         n = len(data[col])
         value = sum(data[col]) / n
@@ -360,7 +350,7 @@ def stdev(data, correction=1):
 def rms(data):
     rms_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
         n = len(data[col])
         value = math.sqrt(sum(x**2 for x in data[col])/n)
@@ -374,7 +364,7 @@ def rms(data):
 def energy(data):
     energy_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
         n = len(data[col])
         value = sum(abs(x)**2 for x in data[col])/n
@@ -389,7 +379,7 @@ def slope_change(data):
     change = 0
     slope_change_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
         change = 0
 
@@ -409,7 +399,7 @@ def autoregyw(data):
     autoregyw_value = []
     autoregyw_value_final = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
         a, sigma = sm.regression.yule_walker(data[col], order=4)
         autoregyw_value.append(a)
@@ -427,7 +417,7 @@ def autoregburg(data):
     autoregburg_value = []
     autoregburg_value_final = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
         a, _ = sm.regression.linear_model.burg(data[col], order=4)
         autoregburg_value.append(a)
@@ -462,7 +452,7 @@ def corecoef(data):
     ccxy = np.corrcoef(data['x'], data['y'])
     ccxz = np.corrcoef(data['x'], data['z'])
     ccyz = np.corrcoef(data['y'], data['z'])
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for i in datawt.columns:
         gg.append(f"acc_{i}_corecoef")
 
@@ -476,7 +466,7 @@ def crossco(data):
     corrxz = np.correlate(data['x'], data['z'])
     corryz = np.correlate(data['y'], data['z'])
 
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for i in datawt.columns:
         gg.append(f"acc_{i}_crossco")
 
@@ -509,7 +499,7 @@ def iqr(dataf):
     for i in range(len(q1)):
         iqr_value.append(q3[i] - q1[i])
 
-    datawt = dataf.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = dataf.drop(['time'], axis=1)
     for i in datawt.columns:
         gg.append(f"acc_{i}_iqr")
 
@@ -520,7 +510,7 @@ def iqr(dataf):
 def three_quarters(data, flag = True):
     three_quarters_value = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for i in datawt.columns:
         fvec, dff = fft_sig(data[i])
         arr = np.cumsum(dff)
@@ -537,14 +527,13 @@ def three_quarters(data, flag = True):
                 gg.append(f"acc_{i}_three_quarters") if flag == True else None
                 break
     return three_quarters_value
-#print(three_quarters(da))
-#print(gg)
+
 
 # One quarter of frequency
 def one_quarter(data, flag = True):
     one_quarter_values = []
     global gg
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
     for i in datawt.columns:
 
         fvec, dff = fft_sig(data[i])
@@ -569,12 +558,12 @@ def one_quarter(data, flag = True):
 # Mean power frequency
 def mpf(data):
     mean_power_frequency = []
-    datawt = data.drop(['time', 'seconds_elapsed'], axis=1)
+    datawt = data.drop(['time'], axis=1)
 
     global gg
 
     for i in datawt.columns:
-
+ 
         gg.append(f"acc_{i}_mpf")
         fvec, dff = fft_sig(data[i])
         value = sum(p * f for p in dff for f in fvec) / sum(p for p in dff)
@@ -584,38 +573,40 @@ def mpf(data):
 
 
 def feats_df(data):
+    global gg
+    
+    try:
+        mpf_ = (*mpf(data),*iqr(data), *wilson_amp(data), *crossco(data), *three_quarters(data), *one_quarter(data),
+                *corecoef(data), sma(data), *slope_change(data), *rms(data), *stdev(data), *mean(data), *mad(data),
+                *zerocr(data),  *wf(data), *mav(data), *p2p(data), *median_frequency(data), *entropy(data),
+                *kurtosis(data) , *skewness(data) , *top3(data),
+                *autoregyw(data), *autoregburg(data), *enwatco(data)
+                )
+        
+        data_frame = pd.DataFrame([mpf_], columns=[ *gg])
+        gg = []
+        return data_frame
+    except:
+        gg =[]
+        return None
 
-    mpf_ = (*mpf(data),*iqr(data), *wilson_amp(data), *crossco(data), *three_quarters(data), *one_quarter(data),
-            *corecoef(data), sma(data), *slope_change(data), *rms(data), *stdev(data), *mean(data), *mad(data),
-            *zerocr(data),  *wf(data), *mav(data), *p2p(data), *median_frequency(data), *entropy(data),
-            *kurtosis(data) , *skewness(data) , *top3(data),
-            *autoregyw(data), *autoregburg(data), *enwatco(data)
-            )
-    #print(len(gg))
-    #print(gg)
-    data_frame = pd.DataFrame([mpf_], columns=[ *gg])
-
-    return data_frame
 
 
-#print(feats_df(da).iloc[0])
-#print(feats_df(da).iloc[0])
-#print(gg)
-#print(len(gg))
 
-def okna(data, l):
-
+def windowing(data, l):
     currDf = pd.DataFrame(columns=[*gg])
     n = len(data)
-    # Ile sekund sygnału ma być obcięte na początku sygnału
+    
+    # head and tail cut-off seconds
     head = 0
-
-    # Ile sekund sygnału ma być obcięte na końcu sygnału
     tail = 9
+
+    # select range based on head and tail seconds
+    # adj is used to cut off signal at good point
     dp = data.iloc[head * 100:n - tail * 100]
     a = len(dp)
 
-    # Na jakie okna czasowe chcesz podzielić sygnał w ms
+    # window size
     v = round(l)*100
     b = a%v
 
@@ -628,5 +619,5 @@ def okna(data, l):
 
     return dd
 
-#print(okna(da,5))
+
 

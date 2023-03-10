@@ -9,30 +9,6 @@ from Feats_columns import *
 from Feats_final import *
 warnings.filterwarnings('ignore')
 
-feat_col = ['z_mpf', 'y_mpf', 'x_mpf', 'z_one_quarter',
-                                   'y_one_quarter',
-                                   'x_one_quarter', 'z_three_quarters', 'y_three_quarters',
-                                   'x_three_quarters', 'z_iqr', 'y_iqr', 'x_iqr', 'z_wilson_amp',
-                                   'y_wilson_amp', 'x_wilson_amp', 'z_crossco', 'y_crossco',
-                                   'x_crossco', 'z_corecoef', 'y_corecoef', 'x_corecoef', 'sma',
-                                   'z_slope_change', 'y_slope_change', 'x_slope_change', 'z_rms',
-                                   'y_rms', 'x_rms', 'z_stdev', 'y_stdev', 'x_stdev', 'z_mean',
-                                   'y_mean', 'x_mean', 'z_mad', 'y_mad', 'x_mad', 'z_zerocr',
-                                   'y_zerocr', 'x_zerocr', 'z_logdetect', 'y_logdetect',
-                                   'x_logdetect', 'z_wf', 'y_wf', 'x_wf', 'z_mav', 'y_mav',
-                                   'x_mav', 'z_p2p', 'y_p2p', 'x_p2p', 'z_median_frequency',
-                                   'y_median_frequency', 'x_median_frequency', 'z_entropy', 'y_entropy',
-                                   'x_entropy', 'z_kurtosis_t', 'y_kurtosis_t', 'x_kurtosis_t',
-                                   'z_kurtosis_f', 'y_kurtosis_f', 'x_kurtosis_f', 'z_skewness_t',
-                                   'y_skewness_t', 'x_skewness_t', 'z_skewness_f', 'y_skewness_f',
-                                   'x_skewness_f', 'z_top3', 'y_top3', 'x_top3', 'z_autoregyw_1',
-                                   'z_autoregyw_2', 'z_autoregyw_3', 'z_autoregyw_4', 'y_autoregyw_1',
-                                   'y_autoregyw_2', 'y_autoregyw_3', 'y_autoregyw_4', 'x_autoregyw_1',
-                                   'x_autoregyw_2', 'x_autoregyw_3', 'x_autoregyw_4', 'z_autoregburg_1',
-                                   'z_autoregburg_2', 'z_autoregburg_3', 'z_autoregburg_4',
-                                   'y_autoregburg_1', 'y_autoregburg_2', 'y_autoregburg_3',
-                                   'y_autoregburg_4', 'x_autoregburg_1', 'x_autoregburg_2',
-                                   'x_autoregburg_3', 'x_autoregburg_4']
 
 # read database credentials
 driver = os.environ['DBDriver']
@@ -93,36 +69,41 @@ for group in groupedList:
     # data segmentation
     segList = [interpAcc, interpMag, interpGyr]
 
-    for idx, seg in enumerate(segList):
-        currDf = pd.DataFrame(columns=feat_col)
-        seg = seg[['time', 'x', 'y', 'z']]
-        df_len = len(seg)
+    try:
+        for idx, seg in enumerate(segList):
+            windows = []
+            seg = seg[['time', 'x', 'y', 'z']]
+            df_len = len(seg)
 
-        # head and tail cut-off seconds
-        head = 5
-        tail = 5
+            # head and tail cut-off seconds
+            head = 5
+            tail = 5
 
-        # select range based on head and tail seconds
-        # adj is used to cut off signal at good point
-        range_df = seg.iloc[head*100:df_len-tail*100]
-        adj = len(range_df)%500
-        
-        for i in range(df_len-tail*100-adj):
-            if i % 500 == 0:    
-                currSeg = range_df.iloc[i:i+501].reset_index(False)
-                window_feat = feats_df(currSeg)
-                currDf = pd.concat([window_feat, currDf])
+            # select range based on head and tail seconds
+            # adj is used to cut off signal at good point
+            range_df = seg.iloc[head*100:df_len-tail*100]
+            adj = len(range_df)%500
+            
+            for i in range(df_len-tail*100-adj):
+                if i % 500 == 0:    
+                    currSeg = range_df.iloc[i:i+501].reset_index(False).drop(columns = ['index'])
+                    window_feat = feats_df(currSeg)
+                    windows.append(window_feat)
 
-        if idx == 0:
-            currDf.to_csv(f"Features{group[0]}.csv")
+            currDf = pd.concat(windows)
+            if idx == 0:
+                currDf.to_csv(f"Features{group[0]}.csv")
+                print(f"Completed: Features{group[0]}.csv")
 
-        elif idx == 1:
-            currDf.to_csv(f"Features{group[1]}.csv")
+            elif idx == 1:
+                currDf.to_csv(f"Features{group[1]}.csv")
+                print(f"Completed: Features{group[1]}.csv")
 
-        else:
-            currDf.to_csv(f"Features{group[2]}.csv")
+            else:
+                currDf.to_csv(f"Features{group[2]}.csv")
+                print(f"Completed: Features{group[2]}.csv")
 
-
-
+    except:
+        continue
 
 
