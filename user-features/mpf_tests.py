@@ -680,6 +680,7 @@ def windowing(data, l):
     dd = pd.DataFrame()
     for i in range(0, n - tail * 100 - b, v):
         dd = dp.iloc[i:i + v + 1].reset_index(False)
+        print(len(dd))
         window_feat = feats_df(dd)
         currDf = pd.concat([window_feat, currDf])
 
