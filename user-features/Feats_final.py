@@ -474,7 +474,7 @@ def crossco(data):
 
 
 # Wilson amplitude
-def wilson_amp(data, t=0):
+def wilson_amp(data, t=0.05):
     cols = ['x', 'y', 'z']
     wa = []
     for col in cols:
@@ -559,14 +559,11 @@ def one_quarter(data, flag = True):
 def mpf(data):
     mean_power_frequency = []
     datawt = data.drop(['time'], axis=1)
-
     global gg
-
     for i in datawt.columns:
- 
-        gg.append(f"acc_{i}_mpf")
+        gg.append(f"acc_{i}_mpf1")
         fvec, dff = fft_sig(data[i])
-        value = sum(p * f for p in dff for f in fvec) / sum(p for p in dff)
+        value = np.sum(np.multiply(dff, fvec))/np.sum(dff)
         mean_power_frequency.append(value)
 
     return mean_power_frequency
