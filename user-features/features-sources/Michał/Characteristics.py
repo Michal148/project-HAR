@@ -5,19 +5,6 @@ import scipy.stats as ss
 from scipy.fft import fft, fftfreq
 from scipy import signal
 import statistics as stat
-# import matplotlib.pyplot as plot
-import time as tim
-
-
-# t0 = tim.time()
-
-# a2 = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-# da = pd.read_csv('Accelerometer.csv')
-# x = da['x']
-# y = da['y']
-# z = da['z']
-# time = da['time']
-
 
 # changing time signal to frequency
 def fft_sig(data):
@@ -29,7 +16,6 @@ def fft_sig(data):
 
     return freq_vec, np.abs((np.fft.fft(data.to_numpy()*window)))
 
-
 # time
 def zero_crossing(data):
     zc = []
@@ -37,8 +23,6 @@ def zero_crossing(data):
         zero_crossinga = np.where(np.diff(np.sign(data[n])))[0]
         zc.append(zero_crossinga)
     return zc
-
-
 
 # time and frequency
 def kurtosis1(data):
@@ -51,8 +35,6 @@ def kurtosis1(data):
         kurto.append(kurt)
 
     return kurto
-#print(kurtosis1(da))
-
 
 # frequency
 def entropy(data, base=None):
@@ -78,8 +60,6 @@ def entropy(data, base=None):
         entr.append(ent)
 
     return entr
-#print(entropy(da))
-
 
 # median_frequency
 def energy(data):
@@ -109,8 +89,6 @@ def median_absolute_deviation(data):
         mad1.append(mad)
 
     return mad1
-#print(median_absolute_deviation(da))
-
 
 # signal
 def magnitude(data):
@@ -121,21 +99,6 @@ def magnitude(data):
         mag.append(mag_wynik)
 
     return mag
-#print(magnitude(da))
-
-
-#do zobacnie jaki błąd w formule
-#def cross_corelation(data, data1):
-#    N = len(data)
-#    mean_x = sum(data) / N
-#    mean_y = sum(data1) / N
-#    cc = sum(((x - mean_x) * (y - mean_y)) for x, y in data, data1)
-#    ccm = np.sqrt(sum((x - mean_x)**2 for x in data)) * (sum((y - mean_y)**2 for y in data1))
-#    ccn = cc / ccm
-#    return ccn
-#pl = cross_corelation(x,y)
-#print(pl)
-
 
 # time
 def corelation_coefficient(data):

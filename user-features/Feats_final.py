@@ -615,6 +615,3 @@ def windowing(data, l):
         currDf = pd.concat([window_feat, currDf])
 
     return dd
-
-
-

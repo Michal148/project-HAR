@@ -2,10 +2,6 @@ import numpy as np
 import pandas as pd
 import math
 from scipy import fftpack
-import matplotlib.pyplot as plt
-# df = pd.read_csv("Accelerometer.csv")
-# df = df.drop(['time', 'seconds_elapsed'], axis=1)
-
 
 # Calculating mean value
 def mean(dataf):
