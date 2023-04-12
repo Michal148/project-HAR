@@ -1,0 +1,2 @@
+version,device name,recording time,platform,appVersion,device id,sensors,sampleRateMs
+3,Mi 9T,2023-01-04_10-49-05,android,1.11.1,d1f8df53-800a-411b-95db-aa9076db1288,Accelerometer|Gravity|Gyroscope|Orientation|Magnetometer|Annotation|TotalAcceleration|MagnetometerUncalibrated|GyroscopeUncalibrated|AccelerometerUncalibrated,10|10|10|10|10||10|10|10|10
