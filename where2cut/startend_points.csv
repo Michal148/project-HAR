@@ -17,3 +17,8 @@ InterpolationAccelerometerKubaUpstairs2Apple.csv;3,30;81,60
 InterpolationAccelerometerKubaLying3Apple.csv;8,60;233,50
 InterpolationAccelerometerKubaLying2Apple.csv;4,00;96,20
 InterpolationAccelerometerKubaLyingApple.csv;5,00;164,10
+InterpolationAccelerometerKasperDownstairsApple;0,5;85,8
+InterpolationAccelerometerKasperSittingApple;15,2;223,1
+InterpolationAccelerometerKasperStandingApple;8,8;166,7 
+InterpolationAccelerometerKasperUpstairsApple;3,3;95,9
+InterpolationAccelerometerKasperWalkingApple;3,4;219,6
