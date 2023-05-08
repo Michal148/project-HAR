@@ -83,3 +83,7 @@ autoai-ibm/ml - P8 Notebook.ipynb
 autoai-ibm/rest_balanced.csv
 user-features/testingpy.py
 .gitignore
+feats_version_4_acc.csv
+feats_version_4_gyr.csv
+feats_version_4_mag.csv
+feats_version_4.csv
