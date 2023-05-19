@@ -5,18 +5,21 @@ from scipy import signal
 import warnings
 import pywt
 import statsmodels.api as sm
+from antropy import spectral_entropy
+
 warnings.filterwarnings('ignore')
 
 global gg
 gg = []
 
 
+
 def fft_sig(sig, fs=100):
     n = len(sig)
     frequency_vector = np.arange(0, fs, fs / n)
     com_fft = np.abs(np.fft.fft(sig)) / n
-    com_fft[1:int(np.ceil(n/2)+1)] = com_fft[1:int(np.ceil(n/2) + 1)] * 2
-    com_fft[int(np.ceil(n/2)+1):].fill(0)
+    com_fft[1:int(np.ceil(n / 2) + 1)] = com_fft[1:int(np.ceil(n / 2) + 1)] * 2
+    com_fft[int(np.ceil(n / 2) + 1):].fill(0)
 
     return frequency_vector, com_fft
 
@@ -31,7 +34,7 @@ def kurtosis(data):
     global gg
 
     datawt = data.drop(['time'], axis=1)
-    for l in ['t','f']:
+    for l in ['t', 'f']:
         for n in datawt.columns:
             gg.append(f"acc_{n}_kurtosis_{l}")
 
@@ -50,8 +53,6 @@ def kurtosis(data):
         kurtf = (sum((var - meanf) ** 4 for var in ffv) / (lengthf * stdf ** 4))
         kurtosis_value.append(kurtf)
 
-
-
     return kurtosis_value
 
 
@@ -61,7 +62,7 @@ def skewness(data):
     skewness_value = []
     global gg
     datawt = data.drop(['time'], axis=1)
-    for l in ['t','f']:
+    for l in ['t', 'f']:
         for n in datawt.columns:
             gg.append(f"acc_{n}_skewness_{l}")
 
@@ -86,8 +87,6 @@ def skewness(data):
 # Energy wavelet coefficient
 def enwatco(data):
     enwatco_value = []
-    enwacto_final = []
-
     datawt = data.drop(['time'], axis=1)
     for n in datawt.columns:
 
@@ -105,39 +104,11 @@ def enwatco(data):
     for m in ['z', 'y', 'x']:
 
         for i in range(1, n + 1):
-            gu = (f"acc_{m}_enwacto_{i}")
-            gg.append(gu)
+            gg.append(f"acc_{m}_enwacto_{i}")
 
     enwacto_final = [*enwatco_value[0], *enwatco_value[1], *enwatco_value[2]]
 
     return enwacto_final
-
-# Entropy
-def entropy(data, base=None):
-    entropy_value = []
-    global gg
-    datawt = data.drop(['time'], axis=1)
-    for n in datawt.columns:
-        gg.append(f"acc_{n}_entropy")
-        ff, ffv = fft_sig(data[n])
-        n_labels = len(ffv)
-
-        if n_labels <= 1:
-            return 0
-        _, counts = np.unique(ffv, return_counts=True)
-        probs = counts / n_labels
-        n_classes = np.count_nonzero(probs)
-
-        if n_classes <= 1:
-            return 0
-        ent = 0.
-        base = math.e if base is None else base
-
-        for i in probs:
-            ent -= i * math.log(i, base)
-        entropy_value.append(ent)
-
-    return entropy_value
 
 
 # Top 3 value
@@ -252,7 +223,6 @@ def mav(data):
     global gg
     datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
-
         mean_sum = sum(abs(x) for x in data[col])
         mav_value.append(mean_sum)
         gg.append(f"acc_{col}_mav")
@@ -339,7 +309,7 @@ def stdev(data, correction=1):
     for col in datawt.columns:
         n = len(data[col])
         value = sum(data[col]) / n
-        dev = sum((x - value)**2 for x in data[col]) / (n - correction)
+        dev = sum((x - value) ** 2 for x in data[col]) / (n - correction)
         stdev_value.append(dev)
         gg.append(f"acc_{col}_stdev")
 
@@ -353,7 +323,7 @@ def rms(data):
     datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
         n = len(data[col])
-        value = math.sqrt(sum(x**2 for x in data[col])/n)
+        value = math.sqrt(sum(x ** 2 for x in data[col]) / n)
         rms_value.append(value)
         gg.append(f"acc_{col}_rms")
 
@@ -367,7 +337,7 @@ def energy(data):
     datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
         n = len(data[col])
-        value = sum(abs(x)**2 for x in data[col])/n
+        value = sum(abs(x) ** 2 for x in data[col]) / n
         energy_value.append(value)
         gg.append(f"acc_{col}_energy")
 
@@ -397,17 +367,17 @@ def slope_change(data):
 # 4th order auto regressive coefficient
 def autoregyw(data):
     autoregyw_value = []
-    autoregyw_value_final = []
+
     global gg
     datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
         a, sigma = sm.regression.yule_walker(data[col], order=4)
         autoregyw_value.append(a)
 
-        for i in range(1,5):
+        for i in range(1, 5):
             gg.append(f"acc_{col}_autoregyw_{i}")
 
-    autoregyw_value_final = [*autoregyw_value[0],*autoregyw_value[1],*autoregyw_value[2]]
+    autoregyw_value_final = [*autoregyw_value[0], *autoregyw_value[1], *autoregyw_value[2]]
 
     return autoregyw_value_final
 
@@ -415,20 +385,18 @@ def autoregyw(data):
 # Auto-regression coefficients with Burg order equal to four correlation coefficients between two signals
 def autoregburg(data):
     autoregburg_value = []
-    autoregburg_value_final = []
     global gg
     datawt = data.drop(['time'], axis=1)
     for col in datawt.columns:
         a, _ = sm.regression.linear_model.burg(data[col], order=4)
         autoregburg_value.append(a)
-        #gg.append(f"acc_{col}_autoregburg")
+
         for i in range(1, 5):
             gg.append(f"acc_{col}_autoregburg_{i}")
 
     autoregburg_value_final = [*autoregburg_value[0], *autoregburg_value[1], *autoregburg_value[2]]
 
     return autoregburg_value_final
-
 
 
 # Signal magnitude area
@@ -494,8 +462,8 @@ def wilson_amp(data, t=0.05):
 def iqr(dataf):
     iqr_value = []
     global gg
-    q1 = one_quarter(dataf, flag = False)
-    q3 = three_quarters(dataf, flag = False)
+    q1 = one_quarter(dataf, flag=False)
+    q3 = three_quarters(dataf, flag=False)
     for i in range(len(q1)):
         iqr_value.append(q3[i] - q1[i])
 
@@ -507,7 +475,7 @@ def iqr(dataf):
 
 
 # Three quarters of frequency
-def three_quarters(data, flag = True):
+def three_quarters(data, flag=True):
     three_quarters_value = []
     global gg
     datawt = data.drop(['time'], axis=1)
@@ -530,7 +498,7 @@ def three_quarters(data, flag = True):
 
 
 # One quarter of frequency
-def one_quarter(data, flag = True):
+def one_quarter(data, flag=True):
     one_quarter_values = []
     global gg
     datawt = data.drop(['time'], axis=1)
@@ -550,8 +518,6 @@ def one_quarter(data, flag = True):
                 gg.append(f"acc_{i}_one_quarter") if flag == True else None
                 break
 
-
-
     return one_quarter_values
 
 
@@ -559,41 +525,54 @@ def one_quarter(data, flag = True):
 def mpf(data):
     mean_power_frequency = []
     datawt = data.drop(['time'], axis=1)
+
     global gg
+
     for i in datawt.columns:
-        gg.append(f"acc_{i}_mpf1")
+        gg.append(f"acc_{i}_mpf")
         fvec, dff = fft_sig(data[i])
-        value = np.sum(np.multiply(dff, fvec))/np.sum(dff)
+        value = np.sum(np.multiply(dff, fvec)) / np.sum(dff)
         mean_power_frequency.append(value)
 
     return mean_power_frequency
 
 
+# Entropy
+def entropy(data):
+    global gg
+    entropy_value = []
+    datawt = data.drop(['time'], axis=1)
+    for i in datawt.columns:
+        gg.append(f"acc_{i}_entropy")
+        val = spectral_entropy(data[i], sf=100, method='fft')
+        entropy_value.append(val)
+
+    return entropy_value
+
+
 def feats_df(data):
     global gg
-    
+
     try:
-        mpf_ = (*mpf(data),*iqr(data), *wilson_amp(data), *crossco(data), *three_quarters(data), *one_quarter(data),
+        mpf_ = (*mpf(data), *iqr(data), *wilson_amp(data), *crossco(data), *three_quarters(data), *one_quarter(data),
                 *corecoef(data), sma(data), *slope_change(data), *rms(data), *stdev(data), *mean(data), *mad(data),
-                *zerocr(data),  *wf(data), *mav(data), *p2p(data), *median_frequency(data), *entropy(data),
-                *kurtosis(data) , *skewness(data) , *top3(data),
+                *zerocr(data), *wf(data), *mav(data), *p2p(data), *median_frequency(data), *entropy(data),
+                *kurtosis(data), *skewness(data), *top3(data),
                 *autoregyw(data), *autoregburg(data), *enwatco(data)
                 )
-        
-        data_frame = pd.DataFrame([mpf_], columns=[ *gg])
+
+        data_frame = pd.DataFrame([mpf_], columns=[*gg])
         gg = []
         return data_frame
-    except:
-        gg =[]
+    except(Exception,):
+        gg = []
         return None
 
 
-
-
 def windowing(data, l):
-    currDf = pd.DataFrame(columns=[*gg])
+    curr_df = pd.DataFrame(columns=[*gg])
     n = len(data)
-    
+
     # head and tail cut-off seconds
     head = 0
     tail = 9
@@ -604,14 +583,16 @@ def windowing(data, l):
     a = len(dp)
 
     # window size
-    v = round(l)*100
-    b = a%v
-
+    v = round(l) * 100
+    b = a % v
 
     dd = pd.DataFrame()
     for i in range(0, n - tail * 100 - b, v):
-        dd = dp.iloc[i:i+v+1].reset_index(False)
+        dd = dp.iloc[i:i + v + 1].reset_index(False)
         window_feat = feats_df(dd)
-        currDf = pd.concat([window_feat, currDf])
+        curr_df = pd.concat([window_feat, curr_df])
 
     return dd
+
+
+
