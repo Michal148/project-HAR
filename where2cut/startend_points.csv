@@ -59,3 +59,12 @@ InterpolationAccelerometerWiktorUpstairsApple.csv;2,5;64,4
 InterpolationAccelerometerWiktorWalking2Apple.csv;1,4;90,2
 InterpolationAccelerometerWiktorWalking3Apple.csv;1,4;118,5
 InterpolationAccelerometerWiktorWalkingApple.csv;2,2;127,6
+InterpolationAccelerometerKaroJoggingAndroid.csv;2,9;130,4
+InterpolationAccelerometerKaroJogging2Android.csv;2,1;133,3
+InterpolationAccelerometerKarolWalkingAndroid.csv;2,4;128,5
+InterpolationAccelerometerKarolWalking2Android.csv;2,7;130,3
+InterpolationAccelerometerKarolSquatsAndroid.csv;2,7;128,3
+InterpolationAccelerometerKarolUpstairsAndroid.csv;2,6;111,7
+InterpolationAccelerometerKarolUpstairs2Android.csv;2,4;113,8
+InterpolationAccelerometerKarolDownstairs1Android.csv;3,8;99,8
+InterpolationAccelerometerKarolDownstairs2Android.csv;2,3;99
