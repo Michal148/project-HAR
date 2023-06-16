@@ -25,14 +25,17 @@ mag.data_rate = mag_rate
 counter = 0
 data = []
 timestamp = int(time.time())
+last_time = 0.0
 
 print("Data gathering started..")
 while True:
-    # scrape only every third sample for 100Hz data collection 
-    if counter % 3 == 0:
+    current_time = time.time()
+    # scrape data every 0.01s
+    if current_time - last_time >= 0.01:
         acceleration = accel_gyro.acceleration
         gyro = accel_gyro.gyro
         magnetic = mag.magnetic
+        last_time = current_time
         
         data.append(
             {
@@ -49,7 +52,7 @@ while True:
             }
         )
               
-        # save data to output file every 300 samples
+        # save data to output file every 60 samples
         if counter % 300  == 0: 
             df = pd.DataFrame(data)
             filename = "output-{}.csv".format(timestamp)

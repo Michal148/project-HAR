@@ -49,8 +49,8 @@ while True:
             }
         )
               
-        # save data to output file every 300 samples
-        if counter % 300  == 0: 
+        # save data to output file every 60 samples
+        if counter % 1000  == 0: 
             df = pd.DataFrame(data)
             filename = "output-{}.csv".format(timestamp)
             with open(filename, "a") as file:  # Open the file in append mode
