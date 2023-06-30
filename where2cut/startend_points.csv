@@ -24,7 +24,6 @@ InterpolationAccelerometerKasperUpstairsApple.csv;3,3;95,9
 InterpolationAccelerometerKasperWalkingApple.csv;3,4;219,6
 InterpolationAccelerometerUserOrientationDownstairs2Apple.csv;1,6;40,4
 InterpolationAccelerometerUserOrientationDownstairs3Apple.csv;0,3;38,8
-InterpolationAccelerometerUserOrientationDownstairsApple.csv;1,8;48,7
 InterpolationAccelerometerUserOrientationJogging2Apple.csv;3,8;56
 InterpolationAccelerometerUserOrientationJogging3Apple.csv;3;38,35
 InterpolationAccelerometerUserOrientationLying2Apple.csv;3,4;109,4
@@ -33,9 +32,7 @@ InterpolationAccelerometerUserOrientationLyingApple.csv;7;122
 InterpolationAccelerometerUserOrientationSitting2Apple.csv;5,9;130,9
 InterpolationAccelerometerUserOrientationSitting3Apple.csv;16,7;241,2
 InterpolationAccelerometerUserOrientationSitting4Apple.csv;9,4;155,7
-InterpolationAccelerometerUserOrientationSittingApple.csv;18,7;409,4
 InterpolationAccelerometerUserOrientationSquats2Apple.csv;1,7;21,1
-InterpolationAccelerometerUserOrientationSquats3Apple.csv;2,2;20,1
 InterpolationAccelerometerUserOrientationSquatsApple.csv;2;21,5
 InterpolationAccelerometerUserOrientationStanding2Apple.csv;3;44
 InterpolationAccelerometerUserOrientationUpstairs2Apple.csv;2,3;67,2
