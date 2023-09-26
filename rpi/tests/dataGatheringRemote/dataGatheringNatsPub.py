@@ -23,7 +23,7 @@ mag.data_rate = mag_rate
 
 # async communication needed for NATS
 async def run(loop):
-    nc = await nats.connect("nats://<your_computer_ip>:4222")
+    nc = await nats.connect("nats://<nats_server_address>:4222")
     print("Data gathering started..")
     # counter to keep track of samples
     counter = 0
