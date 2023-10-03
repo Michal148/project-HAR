@@ -1,0 +1,3 @@
+adafruit-circuitpython-lis3mdl==1.1.23
+adafruit-circuitpython-lsm6ds==4.5.9
+nats-py==2.3.1

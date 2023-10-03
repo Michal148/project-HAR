@@ -16,16 +16,17 @@ accel_gyro.accelerometer_data_rate = accel_rate
 # streaming with persistence using JetStream
 async def main():
     # open connection to NATS and interface for JetStream
-    nc = await nats.connect("nats://<nats_server_address>:4222")
+    nc = await nats.connect("nats://<token>@<nats_server_address>:4222")
     js = nc.jetstream()
+    print("connected to NATS")
 
     while True:
         acceleration = accel_gyro.acceleration
 
         # publish data
-        _ = await js.publish("x", f"{acceleration[0]}".encode(),stream="RPI")
-        _ = await js.publish("y", f"{acceleration[1]}".encode(),stream="RPI")
-        _ = await js.publish("z", f"{acceleration[2]}".encode(),stream="RPI")
+        _ = await js.publish("x", f"{acceleration[0] / 9.80665}".encode(),stream="RPI")
+        _ = await js.publish("y", f"{acceleration[1] / 9.80665}".encode(),stream="RPI")
+        _ = await js.publish("z", f"{acceleration[2] / 9.80665}".encode(),stream="RPI")
 
 
 if __name__ == '__main__':
