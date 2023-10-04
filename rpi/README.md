@@ -77,9 +77,12 @@ nohup python3 PubDataNATS.py > RPI-data.log 2>&1 &
 ### NATS
 To complete this and the following steps you will need to install Docker. 
 
-To start with, download and run the NATS container:
+To start with, create a network and run the NATS container:
 
 ```bash
+# create network
+docker network create nats
+
 # be sure to insert the auth token
 docker run -d --name nats --network nats --rm -p 4222:4222 -p 8222:8222 nats --http_port 8222 -js --auth <insert auth token here>
 ```
