@@ -1,0 +1,155 @@
+version: '1.0'
+services:
+  nats:
+    image: nats:2-alpine
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 0.8G
+        reservations:
+          cpus: '1'
+          memory: 0.5G
+    container_name: nats
+    restart: on-failure
+    ports:
+      - 4222:4222
+    command: ["nats-server", "--config", "/etc/nats/nats.conf"]
+    environment:
+      NATS_TOKEN: "${NATS_TOKEN}"
+      JS_KEY: "${JS_KEY}"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8222/healthz?js-enabled-only=true"]
+      interval: 5s
+      timeout: 10s
+    volumes:
+      - nats-config:/etc/nats
+    networks:
+      - nats
+      
+
+  nats-box:
+    image: natsio/nats-box:0.7.0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 0.3G
+        reservations:
+          cpus: '0.5'
+          memory: 0.2G
+    container_name: nats-box
+    restart: on-failure:3
+    depends_on:
+      nats:
+        condition: service_healthy
+    environment:
+      NATS_TOKEN: "${NATS_TOKEN}"
+      GODEBUG: "x509ignoreCN=0"
+    command: >
+      /bin/sh -c "nats context save local --server nats://$NATS_TOKEN@nats:4222 --description 'docker' --select --tlscert="/root/container3-cert.pem" --tlskey="/root/container3-key.pem" --tlsca="/root/CA.pem" &&
+      nats stream add --config="/root/rpi-stream.json" &&
+      /bin/sh -l &&
+      tail -f /dev/null"
+    tty: true
+    volumes:
+      - nats-config:/root
+    networks:
+      - nats
+
+  feature-extractor:
+    image: kasperkornak/feature_extractor:1.0
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 0.8G
+        reservations:
+          cpus: '0.5'
+          memory: 0.5G
+    container_name: feature-extractor
+    restart: on-failure
+    depends_on:
+      nats:
+        condition: service_healthy
+    environment:
+      NATS_TOKEN: "${NATS_TOKEN}"
+      NATS_ADDRESS: "${NATS_ADDRESS}"
+    networks:
+      - nats
+    
+  ml_predictor:
+    image: kasperkornak/ml_predictor:1.0
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 0.8G
+        reservations:
+          cpus: '0.5'
+          memory: 0.5G
+    container_name: ml-predictor
+    restart: on-failure
+    depends_on:
+      nats:
+        condition: service_healthy
+    environment:
+      NATS_TOKEN: "${NATS_TOKEN}"
+      NATS_ADDRESS: "${NATS_ADDRESS}"
+    networks:
+      - nats
+
+  redis:
+    image: kasperkornak/redis-har:1.0
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 0.5G
+        reservations:
+          cpus: '0.5'
+          memory: 0.5G
+    container_name: redis
+    restart: on-failure
+    depends_on:
+      nats:
+        condition: service_healthy
+    environment:
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      REDIS_ADDRESS: "${REDIS_ADDRESS}"
+    networks:
+      - nats
+
+  output-container:
+    image: kasperkornak/output_service:1.0
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 0.5G
+        reservations:
+          cpus: '0.5'
+          memory: 0.5G
+    container_name: output-container
+    restart: on-failure
+    depends_on:
+      nats:
+        condition: service_healthy
+    environment:
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      REDIS_ADDRESS: "${REDIS_ADDRESS}"
+      NATS_TOKEN: "${NATS_TOKEN}"
+      NATS_ADDRESS: "${NATS_ADDRESS}"
+    networks:
+      - nats
+
+networks:
+  nats:
+    name: nats
+
+volumes:
+  nats-config:
+    driver: azure_file
+    driver_opts:
+      share_name: "${SHARE_NAME}"
+      storage_account_name: "${SA_NAME}"

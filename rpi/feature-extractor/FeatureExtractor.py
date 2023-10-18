@@ -2,6 +2,7 @@ import asyncio
 import nats
 import pandas as pd
 import base64
+import ssl
 import os
 from SignalFeatures import *
 
@@ -11,21 +12,33 @@ NATS_ADDRESS = os.getenv('NATS_ADDRESS')
 
 # async communication needed for NATS
 async def main():
-    nc = await nats.connect(f"nats://{TOKEN}@{NATS_ADDRESS}:4222")
+    # read ssl files
+    ssl_ctx = ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH)
+    ssl_ctx.load_verify_locations('./CA.pem')
+    ssl_ctx.minimum_version = ssl.TLSVersion.TLSv1_2  
+    ssl_ctx.load_cert_chain(
+        certfile='./container1-cert.pem',
+        keyfile='./container1-key.pem')
+
+    nc = await nats.connect(servers=[f"nats://{TOKEN}@{NATS_ADDRESS}:4222"], tls=ssl_ctx, tls_hostname="nats")
     js = nc.jetstream()
 
-    # probably need to change to ephemeral consumers
     # create consumers
     sub_x = await js.pull_subscribe("x","RPI-sub-x","RPI")
     sub_y = await js.pull_subscribe("y","RPI-sub-y","RPI")
     sub_z = await js.pull_subscribe("z","RPI-sub-z","RPI")
 
-    # consume data in 100-data-points tranches
+    # consume data in 500-data-points tranches
     while True:
         windowDf = pd.DataFrame(columns=['x', 'y', 'z'])
-        x_data = await sub_x.fetch(500, timeout=None)
-        y_data = await sub_y.fetch(500, timeout=None)
-        z_data = await sub_z.fetch(500, timeout=None)
+        try:
+            x_data = await asyncio.wait_for(sub_x.fetch(500), timeout=300.0)
+            y_data = await asyncio.wait_for(sub_y.fetch(500), timeout=300.0)
+            z_data = await asyncio.wait_for(sub_z.fetch(500), timeout=300.0)
+        except asyncio.TimeoutError:
+            print("No new messages, sleeping for 2 minutes.")
+            await asyncio.sleep(120)  
+            continue  
 
         x_data_list = [m.data.decode() for m in x_data]
         y_data_list = [m.data.decode() for m in y_data]
@@ -48,6 +61,7 @@ async def main():
         base64_encoded_data = base64.b64encode(json_data.encode()).decode()
 
         _ = await js.publish("feats", f"{base64_encoded_data}".encode(),stream="RPI")
+        print("features published to NATS")
         
 
 if __name__ == '__main__':

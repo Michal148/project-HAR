@@ -19,14 +19,18 @@ async def main():
     nc = await nats.connect("nats://<token>@<nats_server_address>:4222")
     js = nc.jetstream()
     print("connected to NATS")
-
+    # counter to keep track of samples
+    counter = 0
     while True:
-        acceleration = accel_gyro.acceleration
+        if counter % 3 == 0:
+            acceleration = accel_gyro.acceleration
 
-        # publish data
-        _ = await js.publish("x", f"{acceleration[0] / 9.80665}".encode(),stream="RPI")
-        _ = await js.publish("y", f"{acceleration[1] / 9.80665}".encode(),stream="RPI")
-        _ = await js.publish("z", f"{acceleration[2] / 9.80665}".encode(),stream="RPI")
+            # publish data
+            _ = await js.publish("x", f"{acceleration[0] / 9.80665}".encode(),stream="RPI")
+            _ = await js.publish("y", f"{acceleration[1] / 9.80665}".encode(),stream="RPI")
+            _ = await js.publish("z", f"{acceleration[2] / 9.80665}".encode(),stream="RPI")
+
+        counter +=1 
 
 
 if __name__ == '__main__':
